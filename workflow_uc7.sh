@@ -219,9 +219,12 @@ elif [ ! -e $overlapped_startfile ]
 	#echo "concatenating both overlap files"
 	#cat reads_1/overlap.fastq reads_2/overlap.fastq > reads_all/overlap.fastq
 	echo "making starting tabbed file"
-	$BIN/fastq_to_tab_XOR.pl $OL_READS $VARREG > tmp.txt #this must be included for MiSeq barcodes
-	$BIN/filter_barcodes.pl tmp.txt 8 > $overlapped_startfile
-	#rm tmp.txt
+#	$BIN/fastq_to_tab_XOR.pl $OL_READS $VARREG > tmp.txt #this must be included for MiSeq barcodes
+#	$BIN/filter_barcodes.pl tmp.txt 8 > $overlapped_startfile
+#	$BIN/get_validtags.pl $overlapped_startfile $Lp $rRp "$VALIDTAGS" > $finaltabbedfile
+	#This replaces the previous 3 commands
+	#location of BIN, valid_pairs, overlapped reads, variable region, barcode length
+	$BIN/process_miseq_reads.pl $BIN data_$name/valid_pairs.txt $OL_READS $VARREG 8 > $finaltabbedfile
 fi
 
 #exit 1
@@ -231,7 +234,6 @@ if [[ -e $rekeyedtabbedfile ]]
 elif [ ! -e $rekeyedtabbedfile ] 
 	then
 	echo "making $rekeyedtabbedfile"
-	$BIN/get_validtags.pl $overlapped_startfile $Lp $rRp "$VALIDTAGS" > $finaltabbedfile
 
 	##########
 	#BREAK HERE for merging into one file
