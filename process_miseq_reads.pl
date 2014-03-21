@@ -57,12 +57,12 @@ $bclen = $ARGV[4] if $ARGV[4];
 
 #now get and print the data
 my $counter = 0; my $r1 = my $bc = ""; my $keep = "N";
-open (IN, "< $ARGV[0]") or die;
+open (IN, "< $ARGV[2]") or die;
 	while(my $l = <IN>){
 		chomp $l;
 		if ($counter % 4 == 0 ){
 			
-			print "$r1\n" if $keep eq "Y" && exists($vtag{$bc});
+			print "$r1\n" if ( $keep eq "Y" && exists($vtag{$bc}) );
 									
 			$r1 = $bc = ""; $keep = "N";
 			$counter++;
