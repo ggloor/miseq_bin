@@ -45,9 +45,7 @@ use strict;
 #[7] Rseq 
 
 my @primerinfo = get_primer_info( $ARGV[0], $ARGV[3]);
-foreach(@primerinfo){
-	print "$_\n";
-}
+#foreach(@primerinfo){ print "$_\n"; }
 
 #get the list of valid barcode pairs and store in a hash
 my %vtag = pop_tag();
