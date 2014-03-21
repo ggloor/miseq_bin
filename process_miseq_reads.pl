@@ -33,6 +33,7 @@ use strict;
 # 4: $ARGV[2]: pandaseq overlapped fastq file
 # 5: $ARGV[3]: variable region name
 # 6: $ARGV[4]: barcode length, default 8
+# 7: $ARGV[5]: additional mismatches allowed, default 0
 
 #get the primer information matching the requested primer
 #[0] Lseq with X instead of mismatches
@@ -43,6 +44,9 @@ use strict;
 #[5] allowed R mismatches
 #[6] Lseq 
 #[7] Rseq 
+
+my $additional_mismatches = 0; $additional_mismatches = $ARGV[5] if $ARGV[5] && $ARGV[5] < 3;
+if ($ARGV[5] >= 3){ print "too many mismatches, only using a total of 3"; $additional_mismatches = 3; }
 
 my @primerinfo = get_primer_info( $ARGV[0], $ARGV[3]);
 #foreach(@primerinfo){ print "$_\n"; }
@@ -122,8 +126,8 @@ sub get_primer_info {
 				#change redundant segments to X
 				( $data[0] = $l[1] ) =~ s/\[.{2,3}\]/X/g;
 				( $data[1] = $l[2] ) =~ s/\[.{2,3}\]/X/g;
-				$data[2] = length($data[0]);
-				$data[3] = length($data[1]);
+				$data[2] = length($data[0]) + $additional_mismatches;
+				$data[3] = length($data[1]) + $additional_mismatches;
 				$data[4] = scalar(split/X/, $data[0]); #one more mismatches than redundant positions
 				$data[5] = scalar(split/X/, $data[1]);
 				$data[6] = $l[1];
