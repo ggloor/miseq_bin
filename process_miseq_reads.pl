@@ -78,7 +78,7 @@ open (IN, "< $ARGV[2]") or die;
 				$keep = "Y";
 				my $len = length($l);	
 			
-				my $lbc = substr($l, (12 - $bclen),12);
+				my $lbc = substr($l, (12 - $bclen),$bclen);
 				my $lp = substr($l, 12, $primerinfo[2]);
 
 				my $rp = substr($l, -(12 + $primerinfo[3]),  $primerinfo[3]);
