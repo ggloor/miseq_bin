@@ -121,47 +121,47 @@ mappedfile=data_$name/mapped_otu_isu_reads.txt
 
 #if temprimers file does not exist
 #create it
-if [[ ! -e data_$name/temprimers ]]; then
-	
-	#first get the primers and assign them to the
-	#variables Lp, Rp and rRp
-	#reverse the primers and save in a tempfile
-	cat data_$name/primers.txt > data_$name/temprimers
-	rev < data_$name/primers.txt > data_$name/revtemp
-	
-	#now get the complement and append to temprimers
-	tr "ACGT[]" "TGCA][" < data_$name/revtemp >> data_$name/temprimers
-	
-	#remove the unnecessary temp file
-	rm data_$name/revtemp 
-		
-	#Declare array 
-	declare -a ARRAY
-	
-	#Open file for reading to array
-	#exec attaches a filehandle to the filename
-	exec 10<data_$name/temprimers
-		let count=0
-		
-		while read LINE <&10; do
-			#echo $LINE $count
-			ARRAY[$count]=$LINE
-			((count++))
-		done
-		
-		#get the number of elements in the array
-		#echo Number of elements: ${#ARRAY[@]}
-		Lp=${ARRAY[0]}
-		Rp=${ARRAY[1]}
-		rRp=${ARRAY[3]}
-		# echo array's content
-		#echo ${ARRAY[@]}
-	# close file 
-	exec 10>&-
-	
-	#remove the unnecessary temp file
-	rm data_$name/temprimers 
-	
+if [[ ! -e data_$name/valid_pairs.txt ]]; then
+#	
+#	#first get the primers and assign them to the
+#	#variables Lp, Rp and rRp
+#	#reverse the primers and save in a tempfile
+#	cat data_$name/primers.txt > data_$name/temprimers
+#	rev < data_$name/primers.txt > data_$name/revtemp
+#	
+#	#now get the complement and append to temprimers
+#	tr "ACGT[]" "TGCA][" < data_$name/revtemp >> data_$name/temprimers
+#	
+#	#remove the unnecessary temp file
+#	rm data_$name/revtemp 
+#		
+#	#Declare array 
+#	declare -a ARRAY
+#	
+#	#Open file for reading to array
+#	#exec attaches a filehandle to the filename
+#	exec 10<data_$name/temprimers
+#		let count=0
+#		
+#		while read LINE <&10; do
+#			#echo $LINE $count
+#			ARRAY[$count]=$LINE
+#			((count++))
+#		done
+#		
+#		#get the number of elements in the array
+#		#echo Number of elements: ${#ARRAY[@]}
+#		Lp=${ARRAY[0]}
+#		Rp=${ARRAY[1]}
+#		rRp=${ARRAY[3]}
+#		# echo array's content
+#		#echo ${ARRAY[@]}
+#	# close file 
+#	exec 10>&-
+#	
+#	#remove the unnecessary temp file
+#	rm data_$name/temprimers 
+#	
 	#get the list of valid tags
 	$BIN/make_valid_tags.pl data_$name/samples.txt >  data_$name/valid_pairs.txt
 	
@@ -177,9 +177,9 @@ fi
 
 VALIDTAGS=${VALIDTAG[@]}
 
-echo primer 1 is............$Lp
-echo primer 2 is............$Rp
-echo revcom of primer 2 is..$rRp
+#echo primer 1 is............$Lp
+#echo primer 2 is............$Rp
+#echo revcom of primer 2 is..$rRp
 echo valid tag pairs are....$VALIDTAGS
 
 ######################### DONE GETTING THE PRIMER AND SEQUENCE TAG INFORMATION
