@@ -18,18 +18,20 @@ use strict;
 #    along with this program. It should be located in gnu_license.txt
 #    If not, see <http://www.gnu.org/licenses/>.
 ########
+# the objective is to make a fasta file of ISUs in rank abundance order
+# and a lookup table of ISU_ids and read identifiers
 my $dir = "data_" . $ARGV[1];
 my %groups; my %gname; my %gcount;
-my $gid = 0;
-open (IN, "< $ARGV[0]") or die;
+my $gid = 0; #trivial ISU_id
+open (IN, "< $ARGV[0]") or die; # rekeyedtabbedfile.txt file is the input. 
 	while(defined(my $l = <IN>)){
 		chomp $l;
 		my @l = split/\t/, $l; #split on z
-		if (!exists $groups{$l[3]}){
-			 $groups{$l[3]} = $gid;
-			 $gname{$l[3]} .= "$l[0]"; #separated by @ sign
-			 $gcount{$l[3]}++;
-			 $gid++;
+		if (!exists $groups{$l[3]}){ #if the group has not been seen before
+			 $groups{$l[3]} = $gid; #hash table containing only group ID, keyed by unique sequence
+			 $gname{$l[3]} .= "$l[0]"; # concatenate sequence identifiers, separated by @ sign
+			 $gcount{$l[3]}++; # count the number of identifiers
+			 $gid++; #increment ISU_id
 		}elsif (exists $groups{$l[3]}){
 			 $gname{$l[3]} .= "$l[0]";
 			 $gcount{$l[3]}++;
@@ -37,23 +39,19 @@ open (IN, "< $ARGV[0]") or die;
 	}
 close IN;
 
-#my @k = keys(%gcount);
 
 # sort these based on the number of reads
-
 open (OUTG, "> $dir/groups.txt") or die;
 open (OUTN, "> $dir/reads_in_groups.txt") or die;
 
+#for each key in %gcount, keys in all three hashes have to occur if in one
+#sort keys by the abundance in hash %gcount
 foreach my $k (sort { $gcount{$b} <=> $gcount{$a} } keys %gcount) {
-	print OUTG ">lcl|$groups{$k}|num|$gcount{$k}\t$k\n" if $gcount{$k} > 1;
+	print OUTG ">lcl|$groups{$k}|num|$gcount{$k}\t$k\n" if $gcount{$k} > 1; #would be best to have this as a flag with default 1
 	print OUTN "$groups{$k}$gname{$k}\n" if $gcount{$k} > 1;
 }
 
 close OUTN;
 close OUTG;
 
-#foreach(@k){
-#	print OUTG ">lcl|$groups{$_}|num|$gcount{$_}\t$_\n";
-#	print OUTN "$groups{$_}$gname{$_}\n";
-#}
 

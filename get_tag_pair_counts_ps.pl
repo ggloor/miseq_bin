@@ -44,7 +44,8 @@ open (IN, "< $ARGV[0]") or die;
 		$ISUmax = $ll[2] if $ll[2] > $ISUmax;
 		#print "$ISUmax " if $ll[4] == $ISUmax;#find the largest OTU and ISU id numbers
 		$OTUmax = $ll[4] if $ll[4] > $OTUmax;
-		my $tagpr = "$l[1]-$l[5]";
+#		my $tagpr = "$l[1]-$l[5]";
+		my $tagpr = "$l[1]";
 		${ $OTUtaghash{$tagpr} }[$ll[4]]++;
 		$OTUtagtotal{$tagpr}++;
 		${ $ISUtaghash{$tagpr} }[$ll[2]]++;

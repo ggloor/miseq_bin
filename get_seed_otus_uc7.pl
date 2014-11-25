@@ -1,7 +1,7 @@
 #!/usr/bin/env perl -w
 use strict;
 #######
-# This software is Copyright 2011 Greg Gloor and is distributed under the 
+# This software is Copyright 2013 Greg Gloor and is distributed under the 
 #    terms of the GNU General Public License.
 #
 # This program is free software: you can redistribute it and/or modify
