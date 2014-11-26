@@ -26,9 +26,9 @@ c95file=data_$name/results.uc
 mappedfile=data_$name/mapped_otu_isu_reads.txt
 
 ### these are the mothur and silva locations
-MOTHUR="/Users/ggloor/Documents/Custom_microbiota/mothur/mothur"
-TEMPLATE="/Users/ggloor/Documents/Custom_microbiota/mothur/Silva.nr_v119/silva.nr_v119.align"
-TAXONOMY="/Users/ggloor/Documents/Custom_microbiota/mothur/Silva.nr_v119/silva.nr_v119.tax"
+MOTHUR="/Volumes/longlunch/seq/annotationDB/mothur/mothur"
+TEMPLATE="/Volumes/longlunch/seq/annotationDB/mothur/Silva.nr_v119/silva.nr_v119.align"
+TAXONOMY="/Volumes/longlunch/seq/annotationDB/mothur/Silva.nr_v119/silva.nr_v119.tax"
 
 if [[ ! -e $MOTHUR ]] 
 	echo "please provide a valid path to the mothur executable
