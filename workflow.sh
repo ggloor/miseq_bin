@@ -4,15 +4,19 @@ primer=$3 #primer sequence, see bin/primer_seqs.txt for a list of primers
 #rekeyedtabbedfile=$3 #overlapped reads including directory
 
 #check for proper inputs
-echo ${1?Error \$1 is not defined. It should contain the experiment name from samples.txt}
-echo ${2?Error \$2 is not defined. It should contain the clustering proportion: almost always 0.97}
-echo ${3?Error \$3 is not defined. It should contain the primer name from bin/primer_seqs.txt. eg. V4EMB}
+echo ${1?Error \$1 is not defined. flag 1 should contain the experiment name from samples.txt}
+echo ${2?Error \$2 is not defined. flag 2 should contain the clustering proportion: almost always 0.97}
+echo ${3?Error \$3 is not defined. flag 3 should contain the primer name from bin/primer_seqs.txt. eg. V4EMB}
+
 #
 # overlap the fastq files
 # pandaseq -f Gloor1-3_S1_L001_R1_001.fastq -r Gloor1-3_S1_L001_R2_001.fastq -g ps_log.junk.txt -F -N -w reads/overlapped.fastq  -T 2
 
-
+# where is the bin folder?
 BIN="bin/"
+if [[ ! -e $BIN ]] 
+	echo "please provide a valid path to the bin folder
+fi
 
 rekeyedtabbedfile=data_$name/rekeyed_tab_file.txt
 groups_file=data_$name/groups.txt
@@ -25,6 +29,13 @@ mappedfile=data_$name/mapped_otu_isu_reads.txt
 MOTHUR="/Users/ggloor/Documents/Custom_microbiota/mothur/mothur"
 TEMPLATE="/Users/ggloor/Documents/Custom_microbiota/mothur/Silva.nr_v119/silva.nr_v119.align"
 TAXONOMY="/Users/ggloor/Documents/Custom_microbiota/mothur/Silva.nr_v119/silva.nr_v119.tax"
+
+if [[ ! -e $MOTHUR ]] 
+	echo "please provide a valid path to the mothur executable
+fi
+if [[ ! -e $TEMPLATE ]] 
+	echo "please provide a valid path to the silva database
+fi
 
 
 if [ -d data_$name ]; then
@@ -112,14 +123,14 @@ if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]
 	
 	echo "getting the seed OTU sequences"
 	$BIN/get_seed_otus_uc7.pl $c95file $groups_fa_file analysis_$name/OTU_tag_mapped.txt > analysis_$name/OTU_seed_seqs.fa
-
+	Rscript $BIN/OTU_to_QIIME.R analysis_$name
 	echo "assigning taxonomy to $name"
 
 ### this is for RDP seqmatch, which we know is not very good
 #	RDP="/Volumes/MBQC/MBQC"
 #	java -jar $RDP/RDPTools/SequenceMatch.jar seqmatch -k 50 greengenes/seqmatch99/ analysis_$name/OTU_seed_seqs.fa > analysis_$name/seqmatch_out.txt
 #    $BIN/annotate_OTUs.pl $RDP/greengenes/gg_13_5_taxonomy.txt analysis_$name/seqmatch_out.txt > analysis_$name/parsed_GG.txt
-#    Rscript $BIN/OTU_to_QIIME.R analysis_$name
+#    
 #    $BIN/add_taxonomy.pl analysis_$name parsed_GG.txt td_OTU_tag_mapped.txt > analysis_$name/td_OTU_tag_mapped_lineage.txt
 #
 #    java -jar $RDP/RDPTools/SequenceMatch.jar seqmatch -k 50 greengenes/seqmatch97/ analysis_$name/OTU_seed_seqs.fa > analysis_$name/seqmatch97_out.txt
