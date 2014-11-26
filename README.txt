@@ -1,3 +1,6 @@
+This contains all the script files required to extract 16S rRNA gene sequencing reads from inline-barcoded primer sets. See the Illumina_SOP.pdf for amplification instructions and a short description of the software.
+
+
 How to run these scripts
 
 you need the following:
@@ -8,6 +11,7 @@ you need the following:
 
 	- a directory for your analysis, this should contain your reads in a directory called reads
 	- mothur installed
+	- USEARCH v7 or later
 	- maqiime installed
 	- silva databases installed for OTU annotation
 	- the bin folder
