@@ -13,7 +13,7 @@ echo ${3?Error \$3 is not defined. flag 3 should contain the primer name from bi
 # pandaseq -f Gloor1-3_S1_L001_R1_001.fastq -r Gloor1-3_S1_L001_R2_001.fastq -g ps_log.junk.txt -F -N -w reads/overlapped.fastq  -T 2
 
 # where is the bin folder?
-BIN="bin/"
+BIN="/Volumes/longlunch/seq/LRGC/miseq_bin/"
 if [[ ! -e $BIN ]] 
 	echo "please provide a valid path to the bin folder
 fi
