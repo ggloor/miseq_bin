@@ -13,9 +13,9 @@ echo ${3?Error \$3 is not defined. flag 3 should contain the primer name from bi
 # pandaseq -f Gloor1-3_S1_L001_R1_001.fastq -r Gloor1-3_S1_L001_R2_001.fastq -g ps_log.junk.txt -F -N -w reads/overlapped.fastq  -T 2
 
 # where is the bin folder?
-BIN="/Volumes/longlunch/seq/LRGC/miseq_bin/"
-if [[ ! -e $BIN ]] 
-	echo "please provide a valid path to the bin folder
+BIN="/Users/ggloor/git/miseq_bin/"
+if [[ ! -e $BIN ]]; then
+	echo "please provide a valid path to the bin folder"
 fi
 
 rekeyedtabbedfile=data_$name/rekeyed_tab_file.txt
@@ -26,15 +26,14 @@ c95file=data_$name/results.uc
 mappedfile=data_$name/mapped_otu_isu_reads.txt
 
 ### these are the mothur and silva locations
-MOTHUR="/Volumes/longlunch/seq/annotationDB/mothur/mothur"
-TEMPLATE="/Volumes/longlunch/seq/annotationDB/mothur/Silva.nr_v119/silva.nr_v119.align"
-TAXONOMY="/Volumes/longlunch/seq/annotationDB/mothur/Silva.nr_v119/silva.nr_v119.tax"
+MOTHUR="/Users/ggloor/Documents/Custom_microbiota/mothur/mothur"
+TEMPLATE="/Users/ggloor/Documents/Custom_microbiota/mothur/silva.nr_v119.align"
+TAXONOMY="/Users/ggloor/Documents/Custom_microbiota/mothur/silva.nr_v119.tax"
 
-if [[ ! -e $MOTHUR ]] 
-	echo "please provide a valid path to the mothur executable
-fi
-if [[ ! -e $TEMPLATE ]] 
-	echo "please provide a valid path to the silva database
+if [[ ! -e $MOTHUR ]]; then
+	echo "please provide a valid path to the mothur executable"
+elif [[ ! -e $TEMPLATE ]]; then
+	echo "please provide a valid path to the silva database"
 fi
 
 
@@ -54,21 +53,19 @@ else
 fi 
 
 # ensure the overlapped.fastq ps exists
-if [[ ! -e reads/overlapped.fastq ]]
+if [[ ! -e reads/overlapped.fastq ]]; then
     echo "please overlap your reads. For V4 use pandaseq as follows:"
-    echo "pandaseq -f forward.fastq -r reverse.fastq -g ps_log.junk.txt -F -N -w reads/overlapped.fastq  -T 2
+    echo "pandaseq -f forward.fastq -r reverse.fastq -g ps_log.junk.txt -F -N -w reads/overlapped.fastq  -T 2"
 fi
 
 # make the rekeyed-tab file from the overlapped fastq ps file
-if [[ ! -e $rekeyedtabbedfile ]] 
-    then
+if [[ ! -e $rekeyedtabbedfile ]]; then
     echo "making $rekeyedtabbedfile"
     $BIN/process_miseq_reads.pl $BIN samples.txt reads/overlapped.fastq $primer 8 0 $name T > $rekeyedtabbedfile
 fi
 
 #making the ISU groups
-if [[ -e $groups_fa_file ]] 
-	then
+if [[ -e $groups_fa_file ]]; then
 	echo "final groups already made"
 	echo "final dataset already made, data in: $c95file, $mappedfile"
 elif [ ! -e data_$name/groups.txt ]
@@ -81,8 +78,7 @@ elif [ ! -e data_$name/groups.txt ]
 	echo "final groups made. data in: groups.txt, reads_in_groups.txt, groups.fa, moving on to next steps"
 fi
 
-if [[ -e $c95file ]] 
-	then
+if [[ -e $c95file ]]; then
 	echo "clustered already made, data in: $c95file"
 else
 	echo "clustering into OTUs at $cluster % ID"
@@ -94,8 +90,7 @@ else
 	echo "clustering done data in: $c95file, moving on to next steps"
 fi
 
-if [ ! -e $mappedfile ]
-	then
+if [ ! -e $mappedfile ]; then
 	echo "mapping ISU, OTU information back to reads"
 	echo ""
 	$BIN/map_otu_isu_read_us7.pl $c95file $reads_in_groups_file $rekeyedtabbedfile > $mappedfile
@@ -107,8 +102,7 @@ if [ ! -e $mappedfile ]
 	rm   $groups_file
 fi
 
-if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]] 
-	then
+if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]; then
 	#the program identifies the OTUs or ISUs that are present in any of the samples at over 1% abundance
 	#these common OTUs are identified in the table
 	CUTOFF=0.1
@@ -143,23 +137,15 @@ if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]
 #    $BIN/add_taxonomy.pl analysis_$name parsed_v4_97_GG.txt td_OTU_tag_mapped.txt > analysis_$name/td_OTU_tag_mapped_lineage_v4_97.txt
 
 ### this is for mothur classify.seqs and the silva database, which is much better
-	if [[ ! -e /Users/ggloor/Documents/Custom_microbiota/mothur/mothur ]] 
-		echo "modify this script to include the location of the mothur executable and silva databases"	
-		echo "taxonomic assignment not done"
-		echo "you can rerun the script to do the taxonomic assignment when the locations are set"
-		exit 1
-	else	
-		echo "adding silva taxonomy using mothur"
-		echo "this can take some time if the database is not initialized so be patient"
+	echo "adding silva taxonomy using mothur"
+	echo "this can take some time if the database is not initialized so be patient"
 
-		TAX_FILE=analysis_$name/*.taxonomy
-	
-		$MOTHUR "#classify.seqs(fasta=analysis_$name/OTU_seed_seqs.fa, template=$TEMPLATE, taxonomy=$TAXONOMY, cutoff=70, probs=T, outputdir=analysis_$name, processors=4)"
-		$BIN/add_taxonomy_mothur.pl $TAX_FILE analysis_$name/td_OTU_tag_mapped.txt > analysis_$name/td_OTU_tag_mapped_lineage.txt
-	fi	
+	TAX_FILE=analysis_$name/*.taxonomy
 
-elif [[ -e  analysis_$name/OTU_seed_seqs.fa ]]
-	then
+	$MOTHUR "#classify.seqs(fasta=analysis_$name/OTU_seed_seqs.fa, template=$TEMPLATE, taxonomy=$TAXONOMY, cutoff=70, probs=T, outputdir=analysis_$name, processors=4)"
+	$BIN/add_taxonomy_mothur.pl $TAX_FILE analysis_$name/td_OTU_tag_mapped.txt > analysis_$name/td_OTU_tag_mapped_lineage.txt
+
+elif [[ -e  analysis_$name/OTU_seed_seqs.fa ]]; then
 	echo "final analysis already done"
 fi
 
