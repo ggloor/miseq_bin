@@ -1,7 +1,7 @@
 name=$1 #name to prepend to data and analysis directories
 cluster=$2 #cluster percentage
 primer=$3 #primer sequence, see bin/primer_seqs.txt for a list of primers
-#rekeyedtabbedfile=$3 #overlapped reads including directory
+CLEAN=$4 #optional flag to empty directories and start again
 
 #check for proper inputs
 echo ${1?Error \$1 is not defined. flag 1 should contain the experiment name from samples.txt}
@@ -27,8 +27,8 @@ mappedfile=data_$name/mapped_otu_isu_reads.txt
 
 ### these are the mothur and silva locations
 MOTHUR="/Users/ggloor/Documents/Custom_microbiota/mothur/mothur"
-TEMPLATE="/Users/ggloor/Documents/Custom_microbiota/mothur/silva.nr_v119.align"
-TAXONOMY="/Users/ggloor/Documents/Custom_microbiota/mothur/silva.nr_v119.tax"
+TEMPLATE="/Users/ggloor/Documents/Custom_microbiota/mothur/Silva.nr_v119/silva.nr_v119.align"
+TAXONOMY="/Users/ggloor/Documents/Custom_microbiota/mothur/Silva.nr_v119/silva.nr_v119.tax"
 
 if [[ ! -e $MOTHUR ]]; then
 	echo "please provide a valid path to the mothur executable"
@@ -36,6 +36,11 @@ elif [[ ! -e $TEMPLATE ]]; then
 	echo "please provide a valid path to the silva database"
 fi
 
+if [ $CLEAN = "clean" ]; then
+	echo "cleaning up for a re-run"
+	rm -R data_name
+	rm -R analysis_name
+fi
 
 if [ -d data_$name ]; then
 	echo "data directory exists"
