@@ -1,2 +1,3 @@
 #name	flowcell	run	date	location
 ReidAmy	A98FW	https://basespace.illumina.com/runs/6671699/download/8667659/Fastq	May 20, 2014	cjelli..LRGC/amy/rwanda_miseqs
+Gloor1-3	AC1Y6	https://basespace.illumina.com/runs/9228221/download/16732716/Fastq	Nov 16, 2014	MBQC,cjelli..LRGC/AC1Y6
