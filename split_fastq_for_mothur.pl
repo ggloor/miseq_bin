@@ -3,7 +3,7 @@ use strict;
 
 #extract barcoded fastq format into mothur-compatible file lists
 #need forward fastq, reverse fastq and samples file as input
-#output is to a directory called mothur_fastq
+#output is to a directory called demultiplex
 #contains the forward and reverse fastq per barcode and a file called key_file.txt
 #
 #barcodes and primers are stripped
@@ -96,15 +96,15 @@ for(my $i = 0; $i < @bc; $i++){
 	my $fileL = $samples{$bc[$i]} . "_" . $bc[$i] . "_R1.fastq";
 	my $fileR = $samples{$bc[$i]} . "_" . $bc[$i] . "_R2.fastq";
 	$keydata .= "$samples{$bc[$i]}\t$fileL\t$fileR\n";
-	open (OUT, "> demultiplex/$fileL") or die;
+	open (OUT, "> demultiplex/$fileL") or die "$fileL unwritable $!\n";
 		print OUT $outputL{$bc[$i]};
 	close OUT;
-	open (OUT, "> demultiplex/$fileR") or die;
+	open (OUT, "> demultiplex/$fileR") or die "$fileR unwritable $!\n";
 		print OUT $outputR{$bc[$i]};
 	close OUT;
 }
 
-open (OUT, "> demultiplex/key_data.txt") or die;
+open (OUT, "> demultiplex/key_data.txt") or die  "key_data.txt unwritable $!\n";
 	print OUT $keydata;
 close OUT;
 
