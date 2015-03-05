@@ -19,7 +19,7 @@ use strict;
 #0 samples.txt
 #1 forward fastq
 #2 reverse fastq
-#3 primer names, one of V4, V6, etc
+#3 primer names, one of V4EMB, V6, etc
 
 my @lprimerlen = (19, 20, 19);
 my @rprimerlen = (20, 31, 18);
@@ -29,6 +29,7 @@ if ( defined $ARGV[3]){
 	$primer = 2 if $ARGV[3] eq "V6";
 	$primer = 0 if $ARGV[3] eq "ITS6";
 	$primer = 1 if $ARGV[3] eq "Kcnq1ot1";
+	$primer = 1 if $ARGV[3] eq "V4EMB";
 }
 my %samples;
 
@@ -67,17 +68,20 @@ open (IN2, "< $ARGV[2]") or die;
 			$keep = "F"; $id = "";
 			$dataL = "$l1\n";
 			$dataR = "$l2\n";
-		}elsif($c % 4 == 1 ){ #seq line
+			#added check for line length gg, march 3, 2015
+		}elsif($c % 4 == 1 && length($l2) > (12 + $rprimerlen[$primer]) ){ #seq line
+			
 			my $bc = join( "-", substr($l1, 4,8), substr($l2, 4,8) );
 			#print "$c $bc \n$l1\n$l2\n";
-			$keep = $bc if exists $samples{$bc};
-			$dataL .= substr($l1, (12 + $lprimerlen[$primer]) ) . "\n";
-			$dataR .= substr($l2, (12 + $rprimerlen[$primer]) ) . "\n";
-			
+			if (exists $samples{$bc}){
+				$keep = $bc ;
+				$dataL .= substr($l1, (12 + $lprimerlen[$primer]) ) . "\n";
+				$dataR .= substr($l2, (12 + $rprimerlen[$primer]) ) . "\n";
+			}
 		}elsif($c % 4 == 2 ){ #second def line
 			$dataL .= "+\n";
 			$dataR .= "+\n";
-		}elsif($c % 4 == 3){ #qscore
+		}elsif($c % 4 == 3 && $keep ne "F") { #qscore
 			$dataL .= substr($l1, (12 + $lprimerlen[$primer]) ) . "\n";
 			$dataR .= substr($l2, (12 + $rprimerlen[$primer]) ) . "\n";
 		}
