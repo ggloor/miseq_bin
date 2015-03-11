@@ -145,7 +145,7 @@ if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]; then
 	echo "adding silva taxonomy using mothur"
 	echo "this can take some time if the database is not initialized so be patient"
 
-	TAX_FILE=analysis_$name/*.taxonomy
+	TAX_FILE=*.taxonomy
 
 	$MOTHUR "#classify.seqs(fasta=analysis_$name/OTU_seed_seqs.fa, template=$TEMPLATE, taxonomy=$TAXONOMY, cutoff=70, probs=T, outputdir=analysis_$name, processors=4)"
 	$BIN/add_taxonomy_mothur.pl $TAX_FILE analysis_$name/td_OTU_tag_mapped.txt > analysis_$name/td_OTU_tag_mapped_lineage.txt
