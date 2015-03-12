@@ -1,7 +1,15 @@
+#---------------------------------------------------------------------------------------------------
+#
+#
+#
+#---------------------------------------------------------------------------------------------------
+
+
 name=$1 #name to prepend to data and analysis directories
 cluster=$2 #cluster percentage
 primer=$3 #primer sequence, see bin/primer_seqs.txt for a list of primers
-CLEAN=$4 #optional flag to empty directories and start again
+pandaseq_file=$4 #pandaseq file
+CLEAN=$5 #optional flag to empty directories and start again
 
 #check for proper inputs
 echo ${1?Error \$1 is not defined. flag 1 should contain the experiment name from samples.txt}
@@ -13,8 +21,9 @@ echo ${3?Error \$3 is not defined. flag 3 should contain the primer name from bi
 # pandaseq -f Gloor1-3_S1_L001_R1_001.fastq -r Gloor1-3_S1_L001_R2_001.fastq -g ps_log.junk.txt -F -N -w reads/overlapped.fastq  -T 2
 
 # where is the bin folder?
-BIN="/Users/ggloor/git/miseq_bin/"
-if [[ ! -e $BIN ]]; then
+BIN="/Volumes/longlunch/seq/LRGC/miseq_bin/"
+if [[ ! -e $BIN ]] 
+then
 	echo "please provide a valid path to the bin folder"
 fi
 
@@ -58,7 +67,7 @@ else
 fi 
 
 # ensure the overlapped.fastq ps exists
-if [[ ! -e reads/overlapped.fastq ]]; then
+if [[ ! -e $pandaseq_file ]]; then
     echo "please overlap your reads. For V4 use pandaseq as follows:"
     echo "pandaseq -f forward.fastq -r reverse.fastq -g ps_log.junk.txt -F -N -w reads/overlapped.fastq  -T 2"
 fi
@@ -66,7 +75,7 @@ fi
 # make the rekeyed-tab file from the overlapped fastq ps file
 if [[ ! -e $rekeyedtabbedfile ]]; then
     echo "making $rekeyedtabbedfile"
-    $BIN/process_miseq_reads.pl $BIN samples.txt reads/overlapped.fastq $primer 8 0 $name T > $rekeyedtabbedfile
+    $BIN/process_miseq_reads.pl $BIN samples.txt $pandaseq_file $primer 8 0 $name T > $rekeyedtabbedfile
 fi
 
 #making the ISU groups
@@ -123,7 +132,6 @@ if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]; then
 	echo "getting the seed OTU sequences"
 	$BIN/get_seed_otus_uc7.pl $c95file $groups_fa_file analysis_$name/OTU_tag_mapped.txt > analysis_$name/OTU_seed_seqs.fa
 	Rscript $BIN/OTU_to_QIIME.R analysis_$name
-	echo "assigning taxonomy to $name"
 
 ### this is for RDP seqmatch, which we know is not very good
 #	RDP="/Volumes/MBQC/MBQC"
@@ -141,17 +149,22 @@ if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]; then
 #    $BIN/annotate_OTUs.pl greengenes/gg_13_5_taxonomy.txt analysis_$name/seqmatch_v4_97_out.txt > analysis_$name/parsed_v4_97_GG.txt
 #    $BIN/add_taxonomy.pl analysis_$name parsed_v4_97_GG.txt td_OTU_tag_mapped.txt > analysis_$name/td_OTU_tag_mapped_lineage_v4_97.txt
 
+
+elif [[ -e  analysis_$name/OTU_seed_seqs.fa ]]; then
+	echo "final analysis already done"
+fi
+
+	echo "assigning taxonomy to $name"
+
 ### this is for mothur classify.seqs and the silva database, which is much better
 	echo "adding silva taxonomy using mothur"
 	echo "this can take some time if the database is not initialized so be patient"
 
-	TAX_FILE=*.taxonomy
+	TAX_FILE=analysis_$name/*.taxonomy
 
 	$MOTHUR "#classify.seqs(fasta=analysis_$name/OTU_seed_seqs.fa, template=$TEMPLATE, taxonomy=$TAXONOMY, cutoff=70, probs=T, outputdir=analysis_$name, processors=4)"
 	$BIN/add_taxonomy_mothur.pl $TAX_FILE analysis_$name/td_OTU_tag_mapped.txt > analysis_$name/td_OTU_tag_mapped_lineage.txt
 
-elif [[ -e  analysis_$name/OTU_seed_seqs.fa ]]; then
-	echo "final analysis already done"
 fi
 
 echo "end of pipeline.sh"
