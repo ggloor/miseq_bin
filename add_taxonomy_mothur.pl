@@ -28,7 +28,7 @@ open (IN, "< $ARGV[0]") or die"could not read $ARGV[0] $!\n";
 close IN;
 
 #open the table and add taxonomy to each OTU
-open (IN, "< $ARGV[1]") or die"could not read $ARGV[0] $!\n";
+open (IN, "< $ARGV[1]") or die "could not read $ARGV[0] $!\n";
 	while(my $l = <IN>){
 		my @l = split/\t/, $l;
 		chomp $l;
