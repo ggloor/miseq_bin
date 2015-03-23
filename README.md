@@ -28,12 +28,12 @@ To use this document, download workflow.sh from the Jean branch (miseq_bin is al
 
 # Getting your data from LRGC
 
- All MiSeq runs are posted to BaseSpace. You need an account to view your run - speak to David Carter
- BaseSpace gives you a quality report on your run - you should have a look
- All runs should be shared via BaseSpace with Dr. G. Gloor - (especially if you want his help)
+- All MiSeq runs are posted to BaseSpace. You need an account to view your run (speak to David Carter)
+- BaseSpace gives you a quality report on your run - you should have a look
+- All runs should be shared via BaseSpace with Dr. G. Gloor - (especially if you want his help)
 
  If you are woking on cjelli (server), make sure you have an account and a working directory (see below)
-		* See Jean or Greg if you need an account and a working dir
+ _* See Jean or Greg if you need an account and a working dir_
 
  The file to download will be several Gb. Download to your machine and copy to cjelli (if you have enough bandwidth)
 	or come into the Gloor lab to download directly to cjelli
