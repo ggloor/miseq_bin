@@ -40,6 +40,7 @@ The file to download will be several Gb. Download to your machine and copy to cj
 
 # Setup your directory
  All projects are located on /Volumes/longlunch/seq/LRGC/YourUserName
+
 1. Make a directory for your current study/run (usually named by your study name) - **THIS IS YOUR WORKING DIRECTORY**
 2. Make a copy of workflow.sh in your working directory (from miseq_bin on the Jean GitHub branch)
 
