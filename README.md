@@ -55,10 +55,10 @@ Example working directory:
 3. Make a "reads" directory in your working dir and dump your compressed FASTQ file(s) from the MiSeq
  To unzip your Illumina reads file, use the command line:
 
-	7z e filename.gz.tar
-	(if you have 7zip installed)
-			or
-	gzip -d filename.fastq.gz
+		7z e filename.gz.tar
+		(if you have 7zip installed)
+				or
+		gzip -d filename.fastq.gz
 
 
 4. Make samples.txt file
