@@ -9,14 +9,20 @@ ALWAYS ALWAYS ALWAYS look at your data - does it make sense?
 
 # Where do I get the scripts I need?
 
-1) If running from your own computer, get the current worflow and projects from GitHub
+1) If running from your own computer, get the current workflow and projects from GitHub
+	
 	https://github.com/ggloor/miseq_bin
-	*There are multiple BRANCHES (versions) of the script. This document corresponds to
-		the "Jean" branch
+	
+	_*There are multiple BRANCHES (versions) of the script. This document corresponds to
+		the "Jean" branch_
+	
 	https://github.com/ggloor/miseq_bin/tree/Jean
 
-2) If you are running on the Gloor lab server (cjelli), you can acquire the workflow from:
-	/Volumes/longlunch/seq/LRGC/miseq_bin
+2) If you are running on the Gloor lab server (cjelli), the scripts are located in:
+	
+	`/Volumes/longlunch/seq/LRGC/miseq_bin`
+	
+To use this document, download workflow.sh from the Jean branch (miseq_bin is already on cjelli)
 
  This document will describe the process for working on cjelli
 
@@ -69,7 +75,8 @@ You need a samples.txt file in your working directory outlining the samples and 
 + Group = which study the sample belongs to (*note: you will get separate output for each study under Group)
 
  Ensure the primers you've used are in the miseq_bin/primers.txt file
-	**Most experiments use the V4EMB primer set**
+
+**_Most experiments use the V4EMB primer set_**
 
 # Define your paths and install dependent programs
 
@@ -79,9 +86,11 @@ You need a samples.txt file in your working directory outlining the samples and 
  If you are on cjelli, all needed programs are installed. If you are using your own
 	computer, you need to install
 
-	panadaseq: https://github.com/neufeld/pandaseq
-	Usearch7: http://www.drive5.com/usearch/download.html
-	mothur: http://www.mothur.org/
+panadaseq: https://github.com/neufeld/pandaseq
+
+Usearch7: http://www.drive5.com/usearch/download.html
+
+mothur: http://www.mothur.org/
 
  And you will need to download the SILVA database (formatted for mothur)
 	http://www.mothur.org/wiki/Taxonomy_outline
@@ -103,7 +112,7 @@ This is the main script to cluster your OTUs and generate the OTU table
 	./workflow.sh <name> <percent ID to cluster in decimal> <primer> <path to overlapped reads> clean
 
 e.g.
-	./workflow.sh MyStudyName 0.97 V4EMB path_to/ps_overlapped30.fastq clean
+	`./workflow.sh MyStudyName 0.97 V4EMB path_to/ps_overlapped30.fastq clean`
 
 _Note that you must do this from your working directory_
 
@@ -123,14 +132,14 @@ Three output directories will be created:
 
 _Most files are TOO LARGE to try to open. Use head, tail, more on command line. Your OTU tables can be opened in a text processor (TextWrangler, Sublime, Notepad++) or in Excel_
 
-####analysis_STUDYNAME
+#####analysis_STUDYNAME
 - ISU\_tag\_mapped.txt	-	Table of identical sequence units (clusters at 100% ID, rows) demultiplexed and assigned per sample (column)
 - *OTU\_seed\_seqs.fa	-	Your representative seed sequence per OTU cluster
 - OTU\_tag\_mapped.txt	-	Your initial OTU table. Samples are column headers, OTU numbers (arbitrary) are rows. Ordered from most abundant OTU to least across all samples
 - OTU\_to\_QIIME.out	- 	Output from R transposition of OTU table (errors will be here)
 - *td\_OTU\_tag_mapped.txt	Your QIIME-formatted OTU table before adding taxonomy
 
-####data_STUDYNAME
+#####data_STUDYNAME
 _*This directory can be deleted after analysis is complete_
 
 - clustered\_otus\_usearch.fa	- Uclust output
@@ -141,7 +150,9 @@ _*This directory can be deleted after analysis is complete_
 - !rekeyed\_tab\_file.txt		- tab-delimited file of your demultiplexed reads. Used for combining samples from different MiSeq runs
 - results.uc				- Uclust output
 
-####taxonomy_STUDYNAME
+_!rekeyed\_tab\_file.txt - these files are concatenated if you are combining more than one run for a study_
+
+#####taxonomy_STUDYNAME
 - OTU\_seed\_seqs.nr\_v119.wang.flip.accnos
 - OTU\_seed\_seqs.nr\_v119.wang.tax.summary
 - OTU\_seed\_seqs.nr\_v119.wang.taxonomy	- The taxonomy assigned with the bootstrap confidence listed
