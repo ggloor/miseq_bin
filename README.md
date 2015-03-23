@@ -13,8 +13,8 @@ ALWAYS ALWAYS ALWAYS look at your data - does it make sense?
 	
 	https://github.com/ggloor/miseq_bin
 	
-_*There are multiple BRANCHES (versions) of the script. This document corresponds to
-		the "Jean" branch_
+_**There are multiple BRANCHES (versions) of the script. This document corresponds to
+		the "Jean" branch**_
 	
 	https://github.com/ggloor/miseq_bin/tree/Jean
 
@@ -44,11 +44,11 @@ To use this document, download workflow.sh from the Jean branch (miseq_bin is al
  3) Make a copy of workflow.sh in your working directory (from miseq_bin on the Jean GitHub branch)
 
 
-_*If you do not have a working dir on cjelli in /Groups/LRGC/ then ASK_
-
-_*DO NOT use someone else's working directory, or put data in your home directory_
+_**If you do not have a working dir on cjelli in /Groups/LRGC/ then ASK.
+DO NOT use someone else's working directory, or put data in your home directory**_
 
 Example working directory:
+
 	/Volumes/longlunch/seq/LRGC/jean/study1
 
  Make a "reads" directory in your working dir and dump your compressed FASTQ file(s) from the MiSeq
@@ -77,9 +77,7 @@ You need a samples.txt file in your working directory outlining the samples and 
 + Rpri = the name of the right primer
 + Group = which study the sample belongs to (*note: you will get separate output for each study under Group)
 
- Ensure the primers you've used are in the miseq_bin/primers.txt file
-
-**_Most experiments use the V4EMB primer set_**
+Ensure the primers you've used are in the miseq\_bin/primers.txt file **_Most experiments use the V4EMB primer set_**
 
 # Define your paths and install dependent programs
 
