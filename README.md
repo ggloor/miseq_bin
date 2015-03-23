@@ -13,14 +13,14 @@ ALWAYS ALWAYS ALWAYS look at your data - does it make sense?
 	
 	https://github.com/ggloor/miseq_bin
 	
-	_*There are multiple BRANCHES (versions) of the script. This document corresponds to
+_*There are multiple BRANCHES (versions) of the script. This document corresponds to
 		the "Jean" branch_
 	
 	https://github.com/ggloor/miseq_bin/tree/Jean
 
 2) If you are running on the Gloor lab server (cjelli), the scripts are located in:
 	
-	`/Volumes/longlunch/seq/LRGC/miseq_bin`
+	/Volumes/longlunch/seq/LRGC/miseq_bin
 	
 To use this document, download workflow.sh from the Jean branch (miseq_bin is already on cjelli)
 
@@ -41,7 +41,7 @@ To use this document, download workflow.sh from the Jean branch (miseq_bin is al
 # Setup your directory
  All projects are located on /Volumes/longlunch/seq/LRGC/YourUserName
  2) Make a directory for your current study/run (usually named by your study name) - THIS IS YOUR WORKING DIRECTORY
- 3) Make a copy of workflow.sh in your working directory (from miseq_bin)
+ 3) Make a copy of workflow.sh in your working directory (from miseq_bin on the Jean GitHub branch)
 
 	*If you do not have a working dir on cjelli in /Groups/LRGC/ then ASK
 	*DO NOT use someone else's working directory, or put data in your home directory
