@@ -43,10 +43,13 @@ To use this document, download workflow.sh from the Jean branch (miseq_bin is al
  2) Make a directory for your current study/run (usually named by your study name) - THIS IS YOUR WORKING DIRECTORY
  3) Make a copy of workflow.sh in your working directory (from miseq_bin on the Jean GitHub branch)
 
-	*If you do not have a working dir on cjelli in /Groups/LRGC/ then ASK
-	*DO NOT use someone else's working directory, or put data in your home directory
 
-	Example working directory:  /Volumes/longlunch/seq/LRGC/jean/study1
+_*If you do not have a working dir on cjelli in /Groups/LRGC/ then ASK_
+
+_*DO NOT use someone else's working directory, or put data in your home directory_
+
+Example working directory:
+	/Volumes/longlunch/seq/LRGC/jean/study1
 
  Make a "reads" directory in your working dir and dump your compressed FASTQ file(s) from the MiSeq
  To unzip your Illumina reads file, use the command line:
