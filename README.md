@@ -32,16 +32,16 @@ To use this document, download workflow.sh from the Jean branch (miseq_bin is al
 - BaseSpace gives you a quality report on your run - you should have a look
 - All runs should be shared via BaseSpace with Dr. G. Gloor - (especially if you want his help)
 
- If you are woking on cjelli (server), make sure you have an account and a working directory (see below)
+If you are woking on cjelli (server), make sure you have an account and a working directory (see below)
  _* See Jean or Greg if you need an account and a working dir_
 
- The file to download will be several Gb. Download to your machine and copy to cjelli (if you have enough bandwidth)
-	or come into the Gloor lab to download directly to cjelli
+The file to download will be several Gb. Download to your machine and copy to cjelli (if you have enough bandwidth)
+ or come into the Gloor lab to download directly to cjelli
 
 # Setup your directory
  All projects are located on /Volumes/longlunch/seq/LRGC/YourUserName
- 2) Make a directory for your current study/run (usually named by your study name) - THIS IS YOUR WORKING DIRECTORY
- 3) Make a copy of workflow.sh in your working directory (from miseq_bin on the Jean GitHub branch)
+1. Make a directory for your current study/run (usually named by your study name) - **THIS IS YOUR WORKING DIRECTORY**
+2. Make a copy of workflow.sh in your working directory (from miseq_bin on the Jean GitHub branch)
 
 
 _**If you do not have a working dir on cjelli in /Groups/LRGC/ then ASK.
@@ -51,7 +51,7 @@ Example working directory:
 
 	/Volumes/longlunch/seq/LRGC/jean/study1
 
- Make a "reads" directory in your working dir and dump your compressed FASTQ file(s) from the MiSeq
+3. Make a "reads" directory in your working dir and dump your compressed FASTQ file(s) from the MiSeq
  To unzip your Illumina reads file, use the command line:
 
 	7z e filename.gz.tar
@@ -60,7 +60,7 @@ Example working directory:
 	gzip -d filename.fastq.gz
 
 
-Make samples.txt file
+4. Make samples.txt file
 You need a samples.txt file in your working directory outlining the samples and primers/barcodes on the run.
  The format is tab-delimited, plain text, Unicode UTF-8. and UNIX line feeds
 (see the samples.txt in example_files)
