@@ -1,5 +1,5 @@
 	Mar 2015
-	Working doc by Jean
+	Working doc by Jean Macklaim
 	This is a working document. There are no guarantees that the instructions will be accurate
 	or current, but efforts are made to do so
 
@@ -58,7 +58,7 @@ You need a samples.txt file in your working directory outlining the samples and 
  The headers will not change:
 
 | BC\_L | BC\_R | sample | Lpri | RPri | Group |
-| -----|------|--------|------|------|-------|
+| :-----|:------|:--------|:------|:------|:-------|
 | ccttggaa | ccaaggtt | sample1 | V4L5 | V5R1 | vaginal_study1 |
 
 + BC\_L = the barcode sequence of your left primer
