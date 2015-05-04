@@ -1,46 +1,111 @@
+#-----------------------------------------------------------------------------------------
+# Jean's version
+# Updated: 12-Mar-2015
+#---------------
+# Directory structure:
+#	reads = made by user. Put uncompressed reads and pandaseq overlap here
+#	data_STUDY = output from workflow. Can be deleted once happy with analysis output
+#	analysis_STUDY = output from workflow, contains OTU table
+#	taxonomy_STUDY = output from workflow, contains taxonomy assignment and OTU table with tax (lineage) 
+#---------------
+# Running
+# ./workflow.sh STUDY 0.97 V4EMB reads/overlapped.fastq clean
+#	# STUDY MUST MATCH EXACTLY to the samples.txt Groups col
+#-----------------------------------------------------------------------------------------
+#### User must change the following if needed ####
+
+# File paths to mothur, and the SILVA database (all pre-installed by user)
+MOTHUR="/Volumes/longlunch/seq/annotationDB/mothur/mothur"
+TEMPLATE="/Volumes/longlunch/seq/annotationDB/mothur/Silva.nr_v119/silva.nr_v119.align"
+TAXONOMY="/Volumes/longlunch/seq/annotationDB/mothur/Silva.nr_v119/silva.nr_v119.tax"
+
+# File path to the miseq_bin folder
+BIN="/Volumes/longlunch/seq/LRGC/miseq_bin/"
+
+#### Do not alter any code byond this point ####
+
+#-----------------------------------------------------------------------------------------
+# Inputs for running the script
+#-----------------------------------------------------------------------------------------
+
 name=$1 #name to prepend to data and analysis directories
 cluster=$2 #cluster percentage
 primer=$3 #primer sequence, see bin/primer_seqs.txt for a list of primers
-CLEAN=$4 #optional flag to empty directories and start again
+pandaseq_file=$4 #path to pandaseq file. This should be run before using the workflow
+CLEAN=$5 #optional flag to empty directories and start again (will remove both the data and analysis dirs)
 
 #check for proper inputs
 echo ${1?Error \$1 is not defined. flag 1 should contain the experiment name from samples.txt}
 echo ${2?Error \$2 is not defined. flag 2 should contain the clustering proportion: almost always 0.97}
 echo ${3?Error \$3 is not defined. flag 3 should contain the primer name from bin/primer_seqs.txt. eg. V4EMB}
+echo ${4?Error \$4 is not defined. flag 4 should contain the path to the pandaseq overlapped file}
 
-#
-# overlap the fastq files
-# pandaseq -f Gloor1-3_S1_L001_R1_001.fastq -r Gloor1-3_S1_L001_R2_001.fastq -g ps_log.junk.txt -F -N -w reads/overlapped.fastq  -T 2
-
-# where is the bin folder?
-BIN="/Users/ggloor/git/miseq_bin/"
-if [[ ! -e $BIN ]]; then
-	echo "please provide a valid path to the bin folder"
+#-----------------------------------------------------------------------------------------
+# Check that the file paths are valid, that the panadaseq overlapped file exists,
+#	and that the study NAME exists in samples.txt
+#-----------------------------------------------------------------------------------------
+if [[ ! -e $BIN ]] 
+then
+	echo "please provide a valid path to the bin folder in workflow.sh"
+	exit
 fi
+if [[ ! -e $MOTHUR ]] 
+then
+	echo "please provide a valid path to the mothur executable in workflow.sh"
+	exit
+fi
+if [[ ! -e $TEMPLATE ]] 
+then
+	echo "please provide a valid path to the SILVA template file in workflow.sh"
+	exit
+fi
+if [[ ! -e $TAXONOMY ]] 
+then
+	echo "please provide a valid path to the SILVA taxonomy file in workflow.sh"
+	exit
+fi
+
+# Ensure the pandaseq overlapped file is available
+if [[ ! -s $pandaseq_file ]]; then
+    echo "please overlap your reads. For V4 use pandaseq as follows:"
+    echo "pandaseq -f forward.fastq -r reverse.fastq -g ps_log.txt -F -N -w reads/ps_overlapped.fastq  -T 2"
+    exit
+fi
+
+# Check that the given study name exists in the samples.txt file
+# Should be separated by tab, and at the end of the line
+if grep -q "\t$name$" samples.txt;
+then
+	echo "Study name found"
+else
+     echo -e "\tError: can't find your study name in samples.txt"
+     echo -e "\tMake sure file is tab-delimited, UNIX linefeeds"
+     exit
+
+fi
+
+#-----------------------------------------------------------------------------------------
+# Setup variables for output file names
+#-----------------------------------------------------------------------------------------
 
 rekeyedtabbedfile=data_$name/rekeyed_tab_file.txt
 groups_file=data_$name/groups.txt
 reads_in_groups_file=data_$name/reads_in_groups.txt
 groups_fa_file=data_$name/groups.fa
-c95file=data_$name/results.uc
+uc_out=data_$name/results.uc
 mappedfile=data_$name/mapped_otu_isu_reads.txt
 
-### these are the mothur and silva locations
-MOTHUR="/Users/ggloor/Documents/Custom_microbiota/mothur/mothur"
-TEMPLATE="/Users/ggloor/Documents/Custom_microbiota/mothur/Silva.nr_v119/silva.nr_v119.align"
-TAXONOMY="/Users/ggloor/Documents/Custom_microbiota/mothur/Silva.nr_v119/silva.nr_v119.tax"
-
-if [[ ! -e $MOTHUR ]]; then
-	echo "please provide a valid path to the mothur executable"
-elif [[ ! -e $TEMPLATE ]]; then
-	echo "please provide a valid path to the silva database"
-fi
-
+# Remove ALL output from a previous run
 if [ $CLEAN = "clean" ]; then
 	echo "cleaning up for a re-run"
-	rm -R data_name
-	rm -R analysis_name
+	rm -R data_$name
+	rm -R analysis_$name
+	rm -R taxonomy_$name
 fi
+
+#-----------------------------------------------------------------------------------------
+# Create output directories
+#-----------------------------------------------------------------------------------------
 
 if [ -d data_$name ]; then
 	echo "data directory exists"
@@ -49,7 +114,6 @@ else
 	mkdir data_$name
 fi 
 
-# bash check if directory structure is correct
 if [ -d analysis_$name ]; then
 	echo "analysis directory exists"
 else 
@@ -57,22 +121,23 @@ else
 	mkdir analysis_$name
 fi 
 
-# ensure the overlapped.fastq ps exists
-if [[ ! -e reads/overlapped.fastq ]]; then
-    echo "please overlap your reads. For V4 use pandaseq as follows:"
-    echo "pandaseq -f forward.fastq -r reverse.fastq -g ps_log.junk.txt -F -N -w reads/overlapped.fastq  -T 2"
-fi
-
-# make the rekeyed-tab file from the overlapped fastq ps file
+if [ -d taxonomy_$name ]; then
+	echo "taxonomy directory exists"
+else 
+	echo "taxonomy directory was created"
+	mkdir taxonomy_$name
+fi 
+#-----------------------------------------------------------------------------------------
+# Make the rekeyed-tab file from the overlapped fastq ps file
 if [[ ! -e $rekeyedtabbedfile ]]; then
     echo "making $rekeyedtabbedfile"
-    $BIN/process_miseq_reads.pl $BIN samples.txt reads/overlapped.fastq $primer 8 0 $name T > $rekeyedtabbedfile
+    $BIN/process_miseq_reads.pl $BIN samples.txt $pandaseq_file $primer 8 0 $name T > $rekeyedtabbedfile
 fi
 
-#making the ISU groups
+# Making the ISU groups
 if [[ -e $groups_fa_file ]]; then
 	echo "final groups already made"
-	echo "final dataset already made, data in: $c95file, $mappedfile"
+	echo "final dataset already made, data in: $uc_out, $mappedfile"
 elif [ ! -e data_$name/groups.txt ]
 	then
 	echo "making ISU groups, data in: groups.txt, reads_in_groups.txt"
@@ -83,27 +148,27 @@ elif [ ! -e data_$name/groups.txt ]
 	echo "final groups made. data in: groups.txt, reads_in_groups.txt, groups.fa, moving on to next steps"
 fi
 
-if [[ -e $c95file ]]; then
-	echo "clustered already made, data in: $c95file"
+if [[ -e $uc_out ]]; then
+	echo "clustered already made, data in: $uc_out"
 else
 	echo "clustering into OTUs at $cluster % ID"
 	
 	awk '{sub(/\|num\|/,";size=")}; 1' $groups_fa_file > data_$name/groups_uclust.fa
 	$BIN/usearch7.0.1090_i86osx32 -cluster_otus data_$name/groups_uclust.fa -otu_radius_pct 3 -otus data_$name/clustered_otus_usearch.fa
-	$BIN/usearch7.0.1090_i86osx32 -usearch_global $groups_fa_file -db data_$name/clustered_otus_usearch.fa -strand plus -id 0.97 -uc $c95file
+	$BIN/usearch7.0.1090_i86osx32 -usearch_global $groups_fa_file -db data_$name/clustered_otus_usearch.fa -strand plus -id 0.97 -uc $uc_out
 	
-	echo "clustering done data in: $c95file, moving on to next steps"
+	echo "clustering done data in: $uc_out, moving on to next steps"
 fi
 
 if [ ! -e $mappedfile ]; then
 	echo "mapping ISU, OTU information back to reads"
 	echo ""
-	$BIN/map_otu_isu_read_us7.pl $c95file $reads_in_groups_file $rekeyedtabbedfile > $mappedfile
+	$BIN/map_otu_isu_read_us7.pl $uc_out $reads_in_groups_file $rekeyedtabbedfile > $mappedfile
 	echo "final dataset made, data in: $mappedfile. Singleton reads not kept"
 	echo ""
 	echo "now cleaning up intermediate files"
 	echo "removing:  groups.txt"
-	echo "leaving: reads_in_groups.txt, groups.fa, $c95file, $mappedfile $finaltabbedfile $overlapped_startfile"
+	echo "leaving: reads_in_groups.txt, groups.fa, $uc_out, $mappedfile $finaltabbedfile $overlapped_startfile"
 	rm   $groups_file
 fi
 
@@ -121,9 +186,12 @@ if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]; then
 	echo "and change the 1 to your preferred abundance cutoff in percentage" 
 	
 	echo "getting the seed OTU sequences"
-	$BIN/get_seed_otus_uc7.pl $c95file $groups_fa_file analysis_$name/OTU_tag_mapped.txt > analysis_$name/OTU_seed_seqs.fa
+	$BIN/get_seed_otus_uc7.pl $uc_out $groups_fa_file analysis_$name/OTU_tag_mapped.txt > analysis_$name/OTU_seed_seqs.fa
 	Rscript $BIN/OTU_to_QIIME.R analysis_$name
-	echo "assigning taxonomy to $name"
+
+#-----------------------------------------------------------------------------------------
+# Assign taxonomy using RDP seqmatch. Typically overcalls compared to SILVA (preferred method)
+#-----------------------------------------------------------------------------------------
 
 ### this is for RDP seqmatch, which we know is not very good
 #	RDP="/Volumes/MBQC/MBQC"
@@ -141,17 +209,30 @@ if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]; then
 #    $BIN/annotate_OTUs.pl greengenes/gg_13_5_taxonomy.txt analysis_$name/seqmatch_v4_97_out.txt > analysis_$name/parsed_v4_97_GG.txt
 #    $BIN/add_taxonomy.pl analysis_$name parsed_v4_97_GG.txt td_OTU_tag_mapped.txt > analysis_$name/td_OTU_tag_mapped_lineage_v4_97.txt
 
-### this is for mothur classify.seqs and the silva database, which is much better
-	echo "adding silva taxonomy using mothur"
-	echo "this can take some time if the database is not initialized so be patient"
-
-	TAX_FILE=*.taxonomy
-
-	$MOTHUR "#classify.seqs(fasta=analysis_$name/OTU_seed_seqs.fa, template=$TEMPLATE, taxonomy=$TAXONOMY, cutoff=70, probs=T, outputdir=analysis_$name, processors=4)"
-	$BIN/add_taxonomy_mothur.pl $TAX_FILE analysis_$name/td_OTU_tag_mapped.txt > analysis_$name/td_OTU_tag_mapped_lineage.txt
 
 elif [[ -e  analysis_$name/OTU_seed_seqs.fa ]]; then
 	echo "final analysis already done"
+fi
+#-----------------------------------------------------------------------------------------
+# Assign taxonomy using mothur classify.seqs and the SILVA database
+#-----------------------------------------------------------------------------------------
+
+#if this file exists and is not empty, add taxonomy from SILVA
+if [[ ! -s analysis_$name/td_OTU_tag_mapped_lineage.txt ]]; then
+	echo "assigning taxonomy to $name"
+
+# This uses the mothur classify.seqs script against the SILVA database
+# The method=Wang is the SAME method as RDP
+# For more information: http://www.mothur.org/wiki/Classify.seqs
+
+	echo "adding silva taxonomy using mothur"
+	echo "this can take some time if the database is not initialized so be patient"
+
+	TAX_FILE=taxonomy_$name/*.taxonomy
+
+	$MOTHUR "#classify.seqs(fasta=analysis_$name/OTU_seed_seqs.fa, template=$TEMPLATE, taxonomy=$TAXONOMY, cutoff=70, probs=T, outputdir=taxonomy_$name, processors=4)"
+	$BIN/add_taxonomy_mothur.pl $TAX_FILE analysis_$name/td_OTU_tag_mapped.txt > taxonomy_$name/td_OTU_tag_mapped_lineage.txt
+
 fi
 
 echo "end of pipeline.sh"
