@@ -175,7 +175,7 @@ fi
 if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]; then
 	#the program identifies the OTUs or ISUs that are present in any of the samples at over 1% abundance
 	#these common OTUs are identified in the table
-	CUTOFF=0.1
+	CUTOFF=1
 	echo ""
 	echo "attaching read counts to sequence tag pairs with a $CUTOFF % abundance cutoff in any sample"
 	$BIN/get_tag_pair_counts_ps.pl $mappedfile $CUTOFF $name
