@@ -21,21 +21,24 @@ mkdir split2
 mkdir overlap_split
 mkdir overlap_filtered
 
-# split the reads into 1 million read chunks for 32 bit usearch
-split -l 4000000 $1 split1/
+files=(./*)
+echo "${files[1]}"
+echo "${files[0]}"
 
-split -l 4000000 $2 split2/
+# split the reads into 1 million read chunks for 32 bit usearch
+split -l 4000000 "${files[1]}" split2/
+split -l 4000000 "${files[0]}" split1/
 
 for f in $( ls split1/ ); do
 	echo "$f"
 	# overlap the reads
-	$BIN/usearch7.0.1001_i86osx32 -fastq_mergepairs split1/$f -reverse split2/$f  -fastqout overlap_split/$f.fastq 
+	$BIN/usearch8.0-2.1517_i86osx32 -fastq_mergepairs split1/$f -reverse split2/$f  -fastqout overlap_split/$f.fastq 
 	
 	# filter by maximum expected error
-	$BIN/usearch7.0.1001_i86osx32 -fastq_filter overlap_split/xaa.fastq  -fastq_maxee $ee -fastqout overlap_filtered/$f.fastq
+	$BIN/usearch8.0-2.1517_i86osx32 -fastq_filter overlap_split/$f.fastq -fastq_maxee $ee -fastqout overlap_filtered/$f.fastq
 	
 	# merge the files into the final
-	cat overlap_filtered/$f.fastq >> overlap.fastq
+	cat overlap_filtered/$f.fastq >> overlap_filter.fastq
 done
 
 # clean up

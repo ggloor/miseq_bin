@@ -1,0 +1,116 @@
+#######MACQIIME HERE
+#make metadata table by hand
+
+macqiime
+#make a msa in muscle
+muscle -in ../OTU_seed_seqs.fa -out all_seed_OTUs_bad.mfa
+#fix the formatting 
+awk '/^>/{gsub(/lcl\|[0-9]+\|num\|[0-9]+\|OTU\|/, "")}; 1' all_seed_OTUs_bad.mfa > all_seed_OTUs.mfa
+rm all_seed_OTUs_bad.mfa
+
+# make a tree
+FastTree -nt all_seed_OTUs.mfa > OTU_seqs.tre
+
+#convert the table to .biom format
+biom convert -i ../td_OTU_tag_mapped_lineage.txt -o id_OTU_sal.biom -t dense --table-type="otu table"
+
+#first look at beta diversity
+beta_diversity_through_plots.py -i id_OTU_sal.biom -m metadata_salmonella.txt -o all -t OTU_seqs.tre  -f
+
+######### R HERE to make a dendrogram of clr distances by genus
+# GG, Dec 2, 2014
+# data from Petrof salmonella experiment, Figure X
+# simple dendrogram in R using euclidian distances between clr values after aggregation to
+# genus level
+# 
+# Jan 21, 2015. Added in order by taxon abundance for plotting
+#
+#removes all OTUs that are less than X% abundant in any sample, where
+# X is initially 1%
+# 
+# column names are samples, row names are OTUs, last column is the 
+# presumed genus determined by mothur and silva, with confidence removed
+# also remove root designation
+
+d1 <- read.table("td_OTU_tag_mapped_lineage.txt", row.names=1, header=T, skip=1, comment.char="", sep="\t")
+
+# change the column names to what you want
+#NM <-c("Saline","Met-1","Salmonella","Sal_Met-1","Saline","Met-1","Salmonella","Sal_Met-1","Saline","Met-1","Salmonell","Sal_Met-1","Saline","Met-1","Salmonell","Sal_Met-1","Saline","Met-1","Saline","Met-1","Salmonell","Sal_Met-1","Saline","Met-1","Salmonell","Sal_Met-1")
+NM <-colnames(d1)
+
+# move your taxonomy information to a new vector
+# strip out confidence information and the root name
+tax <- gsub(";\\|[0-9]+", "", d1$taxonomy)
+tax <- gsub("Bacteria;", "", tax)
+d1$taxonomy <- NULL
+
+# sum counts by name
+d1.agg <- aggregate(d1, by=list(tax), FUN=sum)
+tax.agg <- d1.agg$Group.1
+d1.agg$Group.1 <- NULL
+
+# convert to  abundances
+d1.prop <- apply(d1.agg, 2, function(x){x/sum(x)})
+
+# filter so that organisms must be at least x proportionally abundant in any sample
+# you can use any abundance, by default the pipeline uses an abundance of 0.001 in any sample, but this 
+# usually results in more OTUs than can be reasonably plotted.
+# the choice of cutoff is arbitrary and depends on your hypothesis. If you believe that 
+# abundant organisms are the major difference, then increase your values, if you believe that rare 
+# organisms are important, decrease your cutoffs. 0.01 is a happy medium usually
+abund <- 0.01
+d1.abund <- d1.agg[apply(d1.prop, 1, max) > abund,]
+tax.abund.u <- tax.agg[apply(d1.prop, 1, max) > abund]
+
+# add a prior expectation for 0 count reads, all OTUs have at least one column with > 0 reads
+# so our prior expectation is that the value of 0 represents a sampling depth problem and not
+# in practice it does not make much difference if we use an additive pseudo-count as here
+# or an actual prior (add 0.5 to all), or if we use the count zero multiplicative approach
+# of zCompositions. 
+d1.abund[d1.abund==0] <- 0.5
+
+# get proportions of the filtered data for plotting below
+# in log-ratio speak, you are re-closing your dataset
+d1.P.u <- apply(d1.abund, 2, function(x){x/sum(x)})
+
+# order by OTU abundances
+new.order <- rownames(d1.P.u)[ order( apply(d1.P.u, 1, sum), decreasing=T)]
+tax.abund <- tax.abund.u[ order( apply(d1.P.u, 1, sum), decreasing=T)]
+d1.P <- d1.P.u[new.order,]
+
+# apply the centered log ratio function as per Aitchison
+# this moves values from a constrained set, to an open set of numbers
+# distances between values are represented as differences in the ratio between the value
+# and the geometric mean value, so a differenc of 1 is a 2 fold change
+#### important #### distances between ratios are linear, so we can use euclidian distances
+# using euclidian distance and average linkage distance
+colnames(d1.P) <- NM[1:20]
+d1.clr <- apply(d1.P, 2, function(x){log2(x) - mean(log2(x))})
+dist.d1.clr <- dist(t(d1.clr), method="euclidian")
+clust.d1 <- hclust(dist.d1.clr, method="average")
+
+# remove the prior expectation in case we want to do other explorations on the data
+d1[d1 == 0.5] <- 0
+
+colours <- c("steelblue3", "skyblue1", "indianred1", "mediumpurple1", "olivedrab3", "pink", "#FFED6F", "mediumorchid3", "ivory2", "tan1", "aquamarine3", "#C0C0C0", "royalblue4", "mediumvioletred", "#999933", "#666699", "#CC9933", "#006666", "#3399FF", "#993300", "#CCCC99", "#666666", "#FFCC66", "#6699CC", "#663366", "#9999CC", "#CCCCCC", "#669999", "#CCCC66", "#CC6600", "#9999FF", "#0066CC", "#99CCCC", "#999999", "#FFCC00", "#009999", "#FF9900", "#999966", "#66CCCC", "#339966", "#CCCC33", "#EDEDED")
+
+#remove all but phylum and genus
+tax.genus <- gsub("([A-Za-z_0-9-]+);[A-Za-z_0-9-]+;[A-Za-z_0-9-]+;[A-Za-z_0-9-]+;", "\\1...", tax.abund)
+######### This is the barplot
+# uncomment the pdf and dev.off lines to save as pdf
+
+#pdf("examples/genus_aggregate_dendrogram.pdf", width=6, height=9) # default size is inches
+
+png("genus_aggregate_dendrogram.png", width=1060, height=630) # default size is pixels
+
+layout( matrix(c(1,3,2,3),2,2, byrow=T), widths=c(3,4), height=c(4,4))
+par(mar=c(2,3,1,1)+0.1)
+plot(clust.d1, main=NULL, cex=1.1)
+barplot(d1.P[,clust.d1$order], space=0, col=colours, las=2, axisnames=F)
+
+par(mar=c(0,1,1,1)+0.1)
+
+plot(1,2, pch = 1, lty = 1, ylim=c(-20,20), type = "n", axes = FALSE, ann = FALSE)
+legend(x="center", legend=tax.abund, col=colours, lwd=5, cex=.8, border=NULL)
+
+dev.off()

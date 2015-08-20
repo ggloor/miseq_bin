@@ -2,6 +2,9 @@
 	Working doc by Jean Macklaim
 	This is a working document. There are no guarantees that the instructions will be accurate
 	or current, but efforts are made to do so
+	
+	May 2015 gg 
+	This document has been incorporated into the main branch
 
 **Important note**
 
@@ -31,6 +34,7 @@ To use this document, download workflow.sh from the Jean branch (miseq_bin is al
 - All MiSeq runs are posted to BaseSpace. You need an account to view your run (speak to David Carter)
 - BaseSpace gives you a quality report on your run - you should have a look
 - All runs should be shared via BaseSpace with Dr. G. Gloor - (especially if you want his help)
+- David also posts the data on the Robart's dataserver
 
 If you are woking on cjelli (server), make sure you have an account and a working directory (see below)
  _* See Jean or Greg if you need an account and a working dir_
@@ -59,6 +63,10 @@ Example working directory:
 		(if you have 7zip installed)
 				or
 		gzip -d filename.fastq.gz
+		
+		If you download from the Robarts dataserver
+		move the .gz files into reads/
+		gunzip *.gz
 
 
 4. Make samples.txt file
