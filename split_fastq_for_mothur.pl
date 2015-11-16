@@ -53,8 +53,8 @@ close IN;
 my $c = 0; my $dataL = my $dataR; my $keep = "F";
 my %outputL = my %outputR; my $id;
 #open forward fastq and reverse fastq
-open (IN1, "< $ARGV[1]") or die;
-open (IN2, "< $ARGV[2]") or die;
+open (IN1, "< $ARGV[1]") or die "$!]n";
+open (IN2, "< $ARGV[2]") or die "$!\n";
 	while(my $l1 = <IN1>){
 		my $l2 = <IN2>;
 		chomp $l1; chomp $l2;
@@ -70,7 +70,7 @@ open (IN2, "< $ARGV[2]") or die;
 			$dataR = "$l2\n";
 			#added check for line length gg, march 3, 2015
 		}elsif($c % 4 == 1 && length($l2) > (12 + $rprimerlen[$primer]) ){ #seq line
-			
+
 			my $bc = join( "-", substr($l1, 4,8), substr($l2, 4,8) );
 			#print "$c $bc \n$l1\n$l2\n";
 			if (exists $samples{$bc}){
@@ -85,8 +85,8 @@ open (IN2, "< $ARGV[2]") or die;
 			$dataL .= substr($l1, (12 + $lprimerlen[$primer]) ) . "\n";
 			$dataR .= substr($l2, (12 + $rprimerlen[$primer]) ) . "\n";
 		}
-		$c++; 
-	
+		$c++;
+
 #	if ($c > 100000){
 #		last;
 #		close IN1; close IN2;
