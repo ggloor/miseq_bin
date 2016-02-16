@@ -35,13 +35,12 @@ BIN="/Volumes/longlunch/seq/LRGC/miseq_bin/"
 
 name=$1 #name to prepend to data and analysis directories
 cluster=$2 #cluster percentage
-merged_file=$3 #path to pandaseq file. This should be run before using the workflow
+merged_file=$3 #path to your merged_keyed file. This should be run before using the workflow
 
 #check for proper inputs
-echo ${1?Error \$1 is not defined. flag 1 should contain the experiment name from samples.txt}
+echo ${1?Error \$1 is not defined. flag 1 should contain MERGE}
 echo ${2?Error \$2 is not defined. flag 2 should contain the clustering proportion: almost always 0.97}
-echo ${3?Error \$3 is not defined. flag 3 should contain the primer name from bin/primer_seqs.txt. eg. V4EMB}
-echo ${4?Error \$4 is not defined. flag 4 should contain the path to the pandaseq overlapped file}
+echo ${3?Error \$3 is not defined. flag 3 should contain the path to your merged_keyed_tab.txt file}
 
 #-----------------------------------------------------------------------------------------
 # Check that the file paths are valid, that the panadaseq overlapped file exists,
@@ -164,7 +163,6 @@ if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]; then
 #-----------------------------------------------------------------------------------------
 # Assign taxonomy using RDP seqmatch. Typically overcalls compared to SILVA (preferred method)
 #-----------------------------------------------------------------------------------------
-
 ### this is for RDP seqmatch, which we know is not very good
 #	RDP="/Volumes/MBQC/MBQC"
 #	java -jar $RDP/RDPTools/SequenceMatch.jar seqmatch -k 50 greengenes/seqmatch99/ analysis_$name/OTU_seed_seqs.fa > analysis_$name/seqmatch_out.txt
@@ -207,6 +205,6 @@ if [[ ! -s analysis_$name/td_OTU_tag_mapped_lineage.txt ]]; then
 
 fi
 
-echo "end of pipeline.sh"
+echo "end of workflow"
 exit 1
 
