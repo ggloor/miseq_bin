@@ -9,7 +9,7 @@
 #
 #
 ####--------------------------------- Running this workflow ---------------------------------####
-#	./workflow.sh MERGE 0.97 V4EMB
+#	./workflow.sh MERGE 0.97 path/to/merged_keyed_tab.txt
 #-----------------------------------------------------------------------------------------
 # Output directory structure:
 #	data_STUDY = output from workflow. Can be deleted once happy with analysis output
