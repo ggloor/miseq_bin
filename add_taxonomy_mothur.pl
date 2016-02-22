@@ -28,7 +28,7 @@ open (IN, "< $ARGV[0]") or die"could not read $ARGV[0] $!\n";
 close IN;
 
 #open the table and add taxonomy to each OTU
-open (IN, "< $ARGV[1]") or die "could not read $ARGV[0] $!\n";
+open (IN, "< $ARGV[1]") or die "could not read $ARGV[1] $!\n";
 	while(my $l = <IN>){
 		my @l = split/\t/, $l;
 		chomp $l;
@@ -39,8 +39,9 @@ open (IN, "< $ARGV[1]") or die "could not read $ARGV[0] $!\n";
 		}elsif ($l !~ /^#/){
 			my @l = split/\t/, $l;
 			my $taxonomy = "NA;NA;NA;NA;NA;NA;NA";
-			$taxonomy = $tax{$l[0]} . "|$bs{$l[0]}" if $tax{$l[0]} && $bootstrapped == 1;
-			$taxonomy = $tax{$l[0]} if $tax{$l[0]} && $bootstrapped == 0;
+			$taxonomy = $tax{$l[0]} . "|$bs{$l[0]}" if $tax{$l[0]};
+#			$taxonomy = $tax{$l[0]} . "|$bs{$l[0]}" if $tax{$l[0]} && $bootstrapped == 1;
+#			$taxonomy = $tax{$l[0]} if $tax{$l[0]} && $bootstrapped == 0;
 			print "$l\t$taxonomy\n";
 		}
 	}
