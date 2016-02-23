@@ -9,6 +9,7 @@ my $bootstrapped = my $count = 0;
 open (IN, "< $ARGV[0]") or die"could not read $ARGV[0] $!\n";
 	while(my $l = <IN>){
 		chomp $l;
+		$bootstrapped = 0;
 		$bootstrapped = 1 if $l =~ /\(\d+\)/;
 		my @l = split/\t/, $l;
 		my @ll = split/\|/, $l[0];
@@ -20,15 +21,17 @@ open (IN, "< $ARGV[0]") or die"could not read $ARGV[0] $!\n";
 			$l[1] =~ s/\(\d+\)//g; # remove the bootstrap values
 			$tax{$ll[5]} = $l[1]; #key is otu number
 			#print "$count $n[0] $l\n"; # works
-			$count = 0;
+			$bootstrapped = $count = 0;
 		}else{
 			$tax{$ll[5]} = $l[1]; #key is otu number
+			$bs{$ll[5]} = $l[0];
 		}
 	}
 close IN;
 
+
 #open the table and add taxonomy to each OTU
-open (IN, "< $ARGV[1]") or die "could not read $ARGV[0] $!\n";
+open (IN, "< $ARGV[1]") or die "could not read $ARGV[1] $!\n";
 	while(my $l = <IN>){
 		my @l = split/\t/, $l;
 		chomp $l;
@@ -39,10 +42,10 @@ open (IN, "< $ARGV[1]") or die "could not read $ARGV[0] $!\n";
 		}elsif ($l !~ /^#/){
 			my @l = split/\t/, $l;
 			my $taxonomy = "NA;NA;NA;NA;NA;NA;NA";
-			$taxonomy = $tax{$l[0]} . "|$bs{$l[0]}" if $tax{$l[0]} && $bootstrapped == 1;
-			$taxonomy = $tax{$l[0]} if $tax{$l[0]} && $bootstrapped == 0;
+			$taxonomy = $tax{$l[0]} . "|$bs{$l[0]}" if $tax{$l[0]};
+#			$taxonomy = $tax{$l[0]} . "|$bs{$l[0]}" if $tax{$l[0]} && $bootstrapped == 1;
+#			$taxonomy = $tax{$l[0]} if $tax{$l[0]} && $bootstrapped == 0;
 			print "$l\t$taxonomy\n";
 		}
 	}
 close IN;
-
