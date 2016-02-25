@@ -74,7 +74,8 @@ fi
 
 # Check that the given study name exists in the samples.txt file
 # Should be separated by tab, and at the end of the line
-if grep -q "\t$name$" samples.txt;
+FILE=samples.txt
+if grep -q "\t$name$" $FILE;
 then
 	echo "Study name found"
 else
@@ -83,6 +84,16 @@ else
      exit
 
 fi
+COUNT=$(grep -c -U $'\012' $FILE )
+
+if [ $COUNT -eq 0 ] ; then
+	echo "WARNING: Your samples.txt file may not have UNIX end of lines"
+elif [ $COUNT -gt 0 ] ; then
+	echo "samples.txt looks OK"
+fi
+
+#MAC: '\015\'
+#DOS: '\015\012'
 
 #-----------------------------------------------------------------------------------------
 # Setup variables for output file names
