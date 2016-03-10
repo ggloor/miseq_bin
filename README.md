@@ -75,7 +75,7 @@ You need a samples.txt file in your working directory outlining the samples and 
 (see the samples.txt in example_files)
  The headers will not change:
 
-| BC\_L | BC\_R | sample | Lpri | RPri | Group |
+| BC\_L | BC\_R | sample | Lpri | Rpri | Group |
 | :-----|:------|:--------|:------|:------|:-------|
 | ccttggaa | ccaaggtt | sample1 | V4L5 | V5R1 | vaginal_study1 |
 
@@ -88,10 +88,12 @@ You need a samples.txt file in your working directory outlining the samples and 
 
 Ensure the primers you've used are in the miseq\_bin/primers.txt file **_Most experiments use the V4EMB primer set_**
 
-# Define your paths and install dependent programs
+# Define your paths (and install dependent programs if needed)
+
+**If you are on cjelli, your programs are already installed and your paths are set**
 
  Open your copy of workflow.sh and look for the defined paths at the top of the script
- Ensure these paths are correct before you start. If you are on cjelli, the paths are already set
+ Ensure these paths are correct before you start.
 
  If you are on cjelli, all needed programs are installed. If you are using your own
 	computer, you need to install
@@ -140,7 +142,7 @@ Three output directories will be created:
 
  *Asterisked files are used in downstream analysis. These are the files you should look at
 
-_Most files are TOO LARGE to try to open. Use head, tail, more on command line. Your OTU tables can be opened in a text processor (TextWrangler, Sublime, Notepad++) or in Excel_
+_Most files are TOO LARGE to try to open. Use `head`, `tail`, `more` on command line. Your OTU tables can be opened in a text processor (TextWrangler, Sublime, Notepad++) or in Excel_
 
 #####analysis_STUDYNAME
 - ISU\_tag\_mapped.txt	-	Table of identical sequence units (clusters at 100% ID, rows) demultiplexed and assigned per sample (column)
