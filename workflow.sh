@@ -21,6 +21,9 @@ TAXONOMY="/Volumes/longlunch/seq/annotationDB/mothur/Silva.nr_v119/silva.nr_v119
 
 # File path to the miseq_bin folder
 BIN="/Volumes/longlunch/seq/LRGC/miseq_bin/"
+# Path to pre-installed programs on cjelli
+#usearch
+BIN2="/Volumes/longlunch/seq/LRGC/bin/"
 
 #### Do not alter any code byond this point ####
 
@@ -165,8 +168,8 @@ else
 	echo "clustering into OTUs at $cluster % ID"
 	
 	awk '{sub(/\|num\|/,";size=")}; 1' $groups_fa_file > data_$name/groups_uclust.fa
-	$BIN/usearch7.0.1090_i86osx32 -cluster_otus data_$name/groups_uclust.fa -otu_radius_pct 3 -otus data_$name/clustered_otus_usearch.fa
-	$BIN/usearch7.0.1090_i86osx32 -usearch_global $groups_fa_file -db data_$name/clustered_otus_usearch.fa -strand plus -id 0.97 -uc $uc_out
+	$BIN2/usearch7.0.1090_i86osx32 -cluster_otus data_$name/groups_uclust.fa -otu_radius_pct 3 -otus data_$name/clustered_otus_usearch.fa
+	$BIN2/usearch7.0.1090_i86osx32 -usearch_global $groups_fa_file -db data_$name/clustered_otus_usearch.fa -strand plus -id 0.97 -uc $uc_out
 	
 	echo "clustering done data in: $uc_out, moving on to next steps"
 fi
