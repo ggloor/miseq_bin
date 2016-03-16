@@ -81,7 +81,7 @@ You need a samples.txt file in your working directory outlining the samples and 
 
 + BC\_L = the barcode sequence of your left primer
 + BC\_R = the barcode sequence of your right primer
-+ sample = the name of your sample
++ sample = the name of your sample (You must have unique sample names for every barcode set)
 + Lpri = the name of the left primer
 + Rpri = the name of the right primer
 + Group = which study the sample belongs to (*note: you will get separate output for each study under Group)
