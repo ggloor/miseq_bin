@@ -179,6 +179,8 @@ The pipeline automates ONE type of taxonomic assignment. There are many options 
  This uses the mothur classify.seqs script against the SILVA database
  The method=Wang is the SAME method as RDP. We are using a 70% bootstrapping cutoff
  For more information: http://www.mothur.org/wiki/Classify.seqs
+ 
+	"When finding the taxonomy of a given query sequence in the fasta file, the wang method looks at the query sequence kmer by kmer. The method looks at all taxonomies represented in the template, and calculates the probability a sequence from a given taxonomy would contain a specific kmer. Then calculates the probability a query sequence would be in a given taxonomy based on the kmers it contains, and assign the query sequence to the taxonomy with the highest probability. This method also runs a bootstrapping algorithmn to find the confidence limit of the assignment by randomly choosing with replacement 1/8 of the kmers in the query and then finding the taxonomy."
 
 
 # Now what?
