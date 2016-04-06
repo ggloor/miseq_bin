@@ -1,0 +1,10 @@
+#SampleID	Ltag	Rtag	colelction_date	extraction_date	age	time_point
+sample1	accgaaca	ccttggaa	06-Apr-16	28-Apr-16	30	1
+sample2	accgaaca	ttggaacc	06-Apr-16	28-Apr-16	30	2
+sample3	accgaaca	tccgttcg	06-Apr-16	28-Apr-16	30	3
+sample4	accgaaca	gaatccat	06-Apr-16	28-Apr-16	30	4
+sample5	accgaaca	cttaggtc	06-Apr-16	28-Apr-16	30	5
+sample6	accgaaca	aggcaaga	06-Apr-16	28-Apr-16	30	6
+sample7	accgaaca	tggcttcg	06-Apr-16	28-Apr-16	30	7
+sample8	accgaaca	caatggat	06-Apr-16	28-Apr-16	30	8
+sample9	accgaaca	gttacctg	06-Apr-16	28-Apr-16	30	9
