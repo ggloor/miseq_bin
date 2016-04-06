@@ -186,7 +186,10 @@ The pipeline automates ONE type of taxonomic assignment. There are many options 
 # Now what?
 QIIME and R can be used for exploratory analysis. ALDEx2 can be used for differential analysis
 
-See the qiime\_and\_plotting directory for example workflows
+GG recommends compostional data analysis (CoDaSeq)
+
+See Jean's example workflows here:
+https://github.com/mmacklai/example-scripts
 
 
 # Common problems
