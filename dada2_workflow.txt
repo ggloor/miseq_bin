@@ -1,0 +1,115 @@
+####
+# Workflow with dada2 incorporated
+# at the moment this is not a fully functional script
+###
+
+#### Step 1
+# Demultiplex the samples into forward and reverse reads
+# these are saved into a directory demultiplex_Group
+# Group is the name of the group samples
+# barcode length is determined from the samples file which contains the barcode sequences
+# sample command line:
+./demultiplex_dada2.pl samples.txt reads/R1_001.fastq reads/R2_001.fastq V4EMB
+
+# load the dada2, ShortRead and ggplot2 packages
+library(dada2); packageVersion("dada2")
+## [1] '0.99.5'
+library(ShortRead); packageVersion("ShortRead")
+## [1] '1.26.0'
+library(ggplot2); packageVersion("ggplot2")
+## [1] '2.1.0'
+
+# this is my common coda and filtering functions
+# change the path accordingly
+source("~/git/compositions/CoDaSeq/chunk/codaSeq_functions.R")
+
+# CHANGE ME to the directory containing the fastq files after unzipping.
+path <- "demultiplex_group/"
+
+# get the list of files
+fns <- list.files(path)
+
+# get fastq files only
+fastqs <- fns[grepl(".fastq$", fns)]
+fastqs <- sort(fastqs) # Sort ensures forward/reverse reads are in same order
+
+fnFs <- fastqs[grepl("_R1", fastqs)] # Just the forward read files
+fnRs <- fastqs[grepl("_R2", fastqs)] # Just the reverse read files
+
+# Get sample names from the first part of the forward read filenames
+# NOTE: the convention is that the sample names are before the first _ character
+
+sample.names <- sapply(strsplit(fnFs, "_"), `[`, 1)
+sample.names2 <- sapply(strsplit(fnFs, "_"), `[`, 2)
+s.names <- data.frame(sample.names, sample.names2)
+snames <- apply(s.names, 1, function(x){paste(x, collapse=":")})
+
+# Fully specify the path for the fnFs and fnRs
+fnFs <- paste0(path, fnFs)
+fnRs <- paste0(path, fnRs)
+
+# test QC see, dada2 tutorial
+plotQualityProfile(fnFs[[1]])
+plotQualityProfile(fnRs[[1]])
+
+# Make filenames for the filtered fastq files
+filtFs <- paste0(path, sample.names, "_F_filt.fastq.gz")
+filtRs <- paste0(path, sample.names, "_R_filt.fastq.gz")
+
+# the length must be equal to or shorter than the read!!
+# that means 187 and 178 for V4 with paired 2x220 with 8 mer barcodes
+# that means 183 and 174 for V4 with paired 2x220 with 12 mer barcodes
+# DO NOT trim from the 5' end since primers and barcodes already trimmed off
+for(i in seq_along(fnFs)) {
+  fastqPairedFilter(c(fnFs[i], fnRs[i]), c(filtFs[i], filtRs[i]),
+                    trimLeft=c(1, 1), truncLen=c(185,175),
+                    maxN=0, maxEE=2, truncQ=2,
+                    compress=TRUE, verbose=TRUE)
+}
+
+# dereplicate, this is making a set of ISUs by abundance
+derepFs <- derepFastq(filtFs, verbose=TRUE)
+derepRs <- derepFastq(filtRs, verbose=TRUE)
+# Name the derep-class objects by the sample names
+names(derepFs) <- sample.names
+names(derepRs) <- sample.names
+
+# SLOW!!
+# Perform joint sample inference and error rate estimation (takes a few minutes)
+# this is the dada2 magic function that determines which reads are likely
+# TRUE and which reads are likely derived by PCR or seq error
+dadaFs <- dada(derepFs, err=inflateErr(tperr1,3), selfConsist = TRUE)
+dadaRs <- dada(derepRs, err=inflateErr(tperr1,3), selfConsist = TRUE)
+
+# overlap the ends of the forward and reverse reads
+mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
+
+# make the sequence table, samples are by rows
+seqtab <- makeSequenceTable(mergers[names(mergers) != "Mock"])
+
+# summarize the output by length
+table(nchar(colnames(seqtab)))
+
+# remove chimeras and save in seqtab.nochim
+seqtab.nochim <- removeBimeraDenovo(seqtab, verbose=TRUE)
+
+# assign taxonomy
+taxa <- assignTaxonomy(seqtab.nochim, "silva_nr_v123_train_set.fa.gz")
+colnames(taxa) <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+
+seqtab.nochim$taxonomy
+write.table(seqtab.nochim, file="dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
+
+un.tax <- unname(taxa)
+
+# sep does not work!
+tax.vector <- apply(un.tax, 1, function(x){paste(x[c(2,5,6)], collapse=":")})
+
+# data are now by column
+filt.tab.nochim <- codaSeq.filter(seqtab.nochim,  min.prop=0.005)
+colnames(filt.tab.nochim) <- snames
+
+clr.tab <- codaSeq.clr(filt.tab.nochim + 0.5)
+pcx <- prcomp(t(clr.tab))
+biplot(pcx, cex=c(0.5,0.01), scale=0)
+
