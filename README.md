@@ -75,23 +75,25 @@ You need a samples.txt file in your working directory outlining the samples and 
 (see the samples.txt in example_files)
  The headers will not change:
 
-| BC\_L | BC\_R | sample | Lpri | RPri | Group |
+| BC\_L | BC\_R | sample | Lpri | Rpri | Group |
 | :-----|:------|:--------|:------|:------|:-------|
 | ccttggaa | ccaaggtt | sample1 | V4L5 | V5R1 | vaginal_study1 |
 
 + BC\_L = the barcode sequence of your left primer
 + BC\_R = the barcode sequence of your right primer
-+ sample = the name of your sample
++ sample = the name of your sample (You must have unique sample names for every barcode set)
 + Lpri = the name of the left primer
 + Rpri = the name of the right primer
 + Group = which study the sample belongs to (*note: you will get separate output for each study under Group)
 
 Ensure the primers you've used are in the miseq\_bin/primers.txt file **_Most experiments use the V4EMB primer set_**
 
-# Define your paths and install dependent programs
+# Define your paths (and install dependent programs if needed)
+
+**If you are on cjelli, your programs are already installed and your paths are set**
 
  Open your copy of workflow.sh and look for the defined paths at the top of the script
- Ensure these paths are correct before you start. If you are on cjelli, the paths are already set
+ Ensure these paths are correct before you start.
 
  If you are on cjelli, all needed programs are installed. If you are using your own
 	computer, you need to install
@@ -140,7 +142,7 @@ Three output directories will be created:
 
  *Asterisked files are used in downstream analysis. These are the files you should look at
 
-_Most files are TOO LARGE to try to open. Use head, tail, more on command line. Your OTU tables can be opened in a text processor (TextWrangler, Sublime, Notepad++) or in Excel_
+_Most files are TOO LARGE to try to open. Use `head`, `tail`, `more` on command line. Your OTU tables can be opened in a text processor (TextWrangler, Sublime, Notepad++) or in Excel_
 
 #####analysis_STUDYNAME
 - ISU\_tag\_mapped.txt	-	Table of identical sequence units (clusters at 100% ID, rows) demultiplexed and assigned per sample (column)
@@ -177,12 +179,17 @@ The pipeline automates ONE type of taxonomic assignment. There are many options 
  This uses the mothur classify.seqs script against the SILVA database
  The method=Wang is the SAME method as RDP. We are using a 70% bootstrapping cutoff
  For more information: http://www.mothur.org/wiki/Classify.seqs
+ 
+	"When finding the taxonomy of a given query sequence in the fasta file, the wang method looks at the query sequence kmer by kmer. The method looks at all taxonomies represented in the template, and calculates the probability a sequence from a given taxonomy would contain a specific kmer. Then calculates the probability a query sequence would be in a given taxonomy based on the kmers it contains, and assign the query sequence to the taxonomy with the highest probability. This method also runs a bootstrapping algorithmn to find the confidence limit of the assignment by randomly choosing with replacement 1/8 of the kmers in the query and then finding the taxonomy."
 
 
 # Now what?
 QIIME and R can be used for exploratory analysis. ALDEx2 can be used for differential analysis
 
-See the qiime\_and\_plotting directory for example workflows
+GG recommends compostional data analysis (CoDaSeq)
+
+See Jean's example workflows here:
+https://github.com/mmacklai/example-scripts
 
 
 # Common problems

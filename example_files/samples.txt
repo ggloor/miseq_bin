@@ -1,0 +1,10 @@
+BC_L	BC_R	sample	Lpri	Rpri	Group
+accgaaca	ccttggaa	sample1	V6L16	V6R5	ABC_STUDY
+accgaaca	ttggaacc	sample2	V6L16	V6R6	ABC_STUDY
+accgaaca	tccgttcg	sample3	V6L16	V6R9	ABC_STUDY
+accgaaca	gaatccat	sample4	V6L16	V6R10	ABC_STUDY
+accgaaca	cttaggtc	sample5	V6L16	V6R11	ABC_STUDY
+accgaaca	aggcaaga	sample6	V6L16	V6R12	ABC_STUDY
+accgaaca	tggcttcg	sample7	V6L16	V6R13	ABC_STUDY
+accgaaca	caatggat	sample8	V6L16	V6R14	ABC_STUDY
+accgaaca	gttacctg	sample9	V6L16	V6R15	ABC_STUDY

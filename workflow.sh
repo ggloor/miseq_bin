@@ -6,7 +6,7 @@
 #	reads = made by user. Put uncompressed reads and pandaseq overlap here
 #	data_STUDY = output from workflow. Can be deleted once happy with analysis output
 #	analysis_STUDY = output from workflow, contains OTU table
-#	taxonomy_STUDY = output from workflow, contains taxonomy assignment and OTU table with tax (lineage) 
+#	taxonomy_STUDY = output from workflow, contains taxonomy assignment and OTU table with tax (lineage)
 #---------------
 # Running
 # ./workflow.sh STUDY 0.97 V4EMB reads/overlapped.fastq clean
@@ -19,8 +19,13 @@ MOTHUR="/Volumes/longlunch/seq/annotationDB/mothur/mothur"
 TEMPLATE="/Volumes/longlunch/seq/annotationDB/mothur/Silva.nr_v119/silva.nr_v119.align"
 TAXONOMY="/Volumes/longlunch/seq/annotationDB/mothur/Silva.nr_v119/silva.nr_v119.tax"
 
+bclen=8 #12 for Golay, otherwise 8
+
 # File path to the miseq_bin folder
 BIN="/Volumes/longlunch/seq/LRGC/miseq_bin/"
+# Path to pre-installed programs on cjelli
+#usearch
+BIN2="/Volumes/longlunch/seq/LRGC/bin/"
 
 #### Do not alter any code byond this point ####
 
@@ -44,22 +49,22 @@ echo ${4?Error \$4 is not defined. flag 4 should contain the path to the pandase
 # Check that the file paths are valid, that the panadaseq overlapped file exists,
 #	and that the study NAME exists in samples.txt
 #-----------------------------------------------------------------------------------------
-if [[ ! -e $BIN ]] 
+if [[ ! -e $BIN ]]
 then
 	echo "please provide a valid path to the bin folder in workflow.sh"
 	exit
 fi
-if [[ ! -e $MOTHUR ]] 
+if [[ ! -e $MOTHUR ]]
 then
 	echo "please provide a valid path to the mothur executable in workflow.sh"
 	exit
 fi
-if [[ ! -e $TEMPLATE ]] 
+if [[ ! -e $TEMPLATE ]]
 then
 	echo "please provide a valid path to the SILVA template file in workflow.sh"
 	exit
 fi
-if [[ ! -e $TAXONOMY ]] 
+if [[ ! -e $TAXONOMY ]]
 then
 	echo "please provide a valid path to the SILVA taxonomy file in workflow.sh"
 	exit
@@ -74,7 +79,8 @@ fi
 
 # Check that the given study name exists in the samples.txt file
 # Should be separated by tab, and at the end of the line
-if grep -q "\t$name$" samples.txt;
+FILE=samples.txt
+if grep -q "\t$name$" $FILE;
 then
 	echo "Study name found"
 else
@@ -83,6 +89,16 @@ else
      exit
 
 fi
+COUNT=$(grep -c -U $'\012' $FILE )
+
+if [ $COUNT -eq 0 ] ; then
+	echo "WARNING: Your samples.txt file may not have UNIX end of lines"
+elif [ $COUNT -gt 0 ] ; then
+	echo "samples.txt looks OK"
+fi
+
+#MAC: '\015\'
+#DOS: '\015\012'
 
 #-----------------------------------------------------------------------------------------
 # Setup variables for output file names
@@ -109,29 +125,29 @@ fi
 
 if [ -d data_$name ]; then
 	echo "data directory exists"
-else 
+else
 	echo "data directory was created"
 	mkdir data_$name
-fi 
+fi
 
 if [ -d analysis_$name ]; then
 	echo "analysis directory exists"
-else 
+else
 	echo "analysis directory was created"
 	mkdir analysis_$name
-fi 
+fi
 
 if [ -d taxonomy_$name ]; then
 	echo "taxonomy directory exists"
-else 
+else
 	echo "taxonomy directory was created"
 	mkdir taxonomy_$name
-fi 
+fi
 #-----------------------------------------------------------------------------------------
 # Make the rekeyed-tab file from the overlapped fastq ps file
 if [[ ! -e $rekeyedtabbedfile ]]; then
     echo "making $rekeyedtabbedfile"
-    $BIN/process_miseq_reads.pl $BIN samples.txt $pandaseq_file $primer 8 0 $name T > $rekeyedtabbedfile
+    $BIN/process_miseq_reads.pl $BIN samples.txt $pandaseq_file $primer $bclen 0 $name T > $rekeyedtabbedfile
 fi
 
 # Making the ISU groups
@@ -141,7 +157,7 @@ if [[ -e $groups_fa_file ]]; then
 elif [ ! -e data_$name/groups.txt ]
 	then
 	echo "making ISU groups, data in: groups.txt, reads_in_groups.txt"
-	$BIN/group_gt1.pl $rekeyedtabbedfile $name 
+	$BIN/group_gt1.pl $rekeyedtabbedfile $name
 	echo "making fasta file. data in: groups.fa"
 	awk '{print$1 "\n"  $2}' $groups_file > $groups_fa_file
 	#####NEW
@@ -152,11 +168,11 @@ if [[ -e $uc_out ]]; then
 	echo "clustered already made, data in: $uc_out"
 else
 	echo "clustering into OTUs at $cluster % ID"
-	
+
 	awk '{sub(/\|num\|/,";size=")}; 1' $groups_fa_file > data_$name/groups_uclust.fa
-	$BIN/usearch7.0.1090_i86osx32 -cluster_otus data_$name/groups_uclust.fa -otu_radius_pct 3 -otus data_$name/clustered_otus_usearch.fa
-	$BIN/usearch7.0.1090_i86osx32 -usearch_global $groups_fa_file -db data_$name/clustered_otus_usearch.fa -strand plus -id 0.97 -uc $uc_out
-	
+	$BIN2/usearch7.0.1090_i86osx32 -cluster_otus data_$name/groups_uclust.fa -otu_radius_pct 3 -otus data_$name/clustered_otus_usearch.fa
+	$BIN2/usearch7.0.1090_i86osx32 -usearch_global $groups_fa_file -db data_$name/clustered_otus_usearch.fa -strand plus -id 0.97 -uc $uc_out
+
 	echo "clustering done data in: $uc_out, moving on to next steps"
 fi
 
@@ -183,8 +199,8 @@ if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]; then
 	echo ""
 	echo "to use a different cutoff run the following command:"
 	echo "$BIN/get_tag_pair_counts.pl $mappedfile 1"
-	echo "and change the 1 to your preferred abundance cutoff in percentage" 
-	
+	echo "and change the 1 to your preferred abundance cutoff in percentage"
+
 	echo "getting the seed OTU sequences"
 	$BIN/get_seed_otus_uc7.pl $uc_out $groups_fa_file analysis_$name/OTU_tag_mapped.txt > analysis_$name/OTU_seed_seqs.fa
 	Rscript $BIN/OTU_to_QIIME.R analysis_$name
@@ -197,7 +213,7 @@ if [[ ! -e analysis_$name/OTU_seed_seqs.fa ]]; then
 #	RDP="/Volumes/MBQC/MBQC"
 #	java -jar $RDP/RDPTools/SequenceMatch.jar seqmatch -k 50 greengenes/seqmatch99/ analysis_$name/OTU_seed_seqs.fa > analysis_$name/seqmatch_out.txt
 #    $BIN/annotate_OTUs.pl $RDP/greengenes/gg_13_5_taxonomy.txt analysis_$name/seqmatch_out.txt > analysis_$name/parsed_GG.txt
-#    
+#
 #    $BIN/add_taxonomy.pl analysis_$name parsed_GG.txt td_OTU_tag_mapped.txt > analysis_$name/td_OTU_tag_mapped_lineage.txt
 #
 #    java -jar $RDP/RDPTools/SequenceMatch.jar seqmatch -k 50 greengenes/seqmatch97/ analysis_$name/OTU_seed_seqs.fa > analysis_$name/seqmatch97_out.txt

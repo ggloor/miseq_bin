@@ -2,7 +2,7 @@
 use strict;
 
 #######
-# This software is Copyright 2013 Greg Gloor and is distributed under the 
+# This software is Copyright 2013 Greg Gloor and is distributed under the
 #    terms of the GNU General Public License.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -47,8 +47,8 @@ if ($ARGV[5] >= 3){ print "too many mismatches, only using a total of 3"; $addit
 #[3] R length
 #[4] allowed L mismatches
 #[5] allowed R mismatches
-#[6] Lseq 
-#[7] Rseq 
+#[6] Lseq
+#[7] Rseq
 
 my @primerinfo = get_primer_info( $ARGV[0], $ARGV[3]);
 
@@ -66,39 +66,42 @@ open (IN, "< $ARGV[2]") or die;
 	while(my $l = <IN>){
 		chomp $l;
 		if ($counter % 4 == 0 ){
-			
+
 			print "$r1\n" if ( $keep eq "Y" && exists($vtag{$bc}) && $ARGV[7] eq "T");
 			print "$fastq" if ( $keep eq "Y" && exists($vtag{$bc}) && $ARGV[7] eq "F");
-									
+
 			$r1 = $fastq = $bc = ""; $keep = "N";
 			$counter++;
 			$r1 .= $l;
 			$fastq = "$l\n";
-			
+
 		}elsif($counter % 4 == 1){
-			my $Lpseq = substr($l,12,$primerinfo[2]);
-			my $Rpseq = substr($l,-(12 + $primerinfo[3]),$primerinfo[3]);
+			my $Lpseq = substr($l,$bclen+4,$primerinfo[2]);
+			my $Rpseq = substr($l,-($bclen+4 + $primerinfo[3]),$primerinfo[3]);
 			$fastq .= "$l\n";
 			#count the number of differences between the primer and the sequence
 			my $ldist = ($Lpseq ^ $primerinfo[0]) =~ tr/\000//c;
 			my $rdist = ($Rpseq ^ $primerinfo[1]) =~ tr/\000//c;
-			
+
 			if ($ldist <= $primerinfo[4] && $rdist <= $primerinfo[5]){
 				$keep = "Y";
-				my $len = length($l);	
-			
-				my $lbc = substr($l, (12 - $bclen),$bclen);
-				my $lp = substr($l, 12, $primerinfo[2]);
+				my $len = length($l);
 
-				my $rp = substr($l, -(12 + $primerinfo[3]),  $primerinfo[3]);
-				my $rbc = substr($l, -12, $bclen );
+				my $lbc = substr($l, ($bclen+4 - $bclen),$bclen); #4 because the padding sequence is 4N
+				my $lp = substr($l, $bclen+4, $primerinfo[2]);
+
+				my $rp = substr($l, -($bclen+4 + $primerinfo[3]),  $primerinfo[3]);	#This calculation is OK
+				my $rbc = substr($l, -($bclen+4), $bclen );
 				$bc = "$lbc-$rbc";
-				my $seq = substr($l, (12 + $primerinfo[2]), -(12 + $primerinfo[3])); 
-				
-				$keep = "N" if length($seq) < 50; 
+				my $seq = substr($l, ($bclen+4 + $primerinfo[2]), -($bclen+4 + $primerinfo[3]));
+
+#				print "$bc\t$seq\n";
+#				print "$primerinfo[3]\n";
+
+				$keep = "N" if length($seq) < 50;
 				my $id = "NULL";
 				$id = $vtag{$bc} if $vtag{$bc};
-				
+
 				$r1 .= "\t$id\t$lp\t$seq\t$rp\t$bc";
 			}
 			$counter++;
@@ -110,7 +113,7 @@ open (IN, "< $ARGV[2]") or die;
 			$fastq .= "$l\n";
 			$counter++;
 		}
-	#if ($counter > 24){ close IN; exit;}
+#	if ($counter > 24){ close IN; exit;}
 	}
 close IN;
 
@@ -124,7 +127,7 @@ sub pop_tag{
 			chomp $l;
 			my @l = split/\t/, $l;
 			if ($l !~ /BC/ && $l[5] eq $expt){
-				my $rtag = reverse($l[1]); $rtag =~ tr/acgt/tgca/;
+				my $rtag = reverse($l[1]); $rtag =~ tr/acgtACGT/tgcaTGCA/;
 				my $tags = uc("$l[0]-$rtag");
 				$tags{$tags} = "$l[2]";	#grab the sample ID for each barcode pair
 			}
