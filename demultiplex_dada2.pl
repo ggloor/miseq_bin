@@ -35,9 +35,11 @@ open (IN, "< $ARGV[0]") or die "$!\n";
 		chomp $l;
 		my @l = split/\t/, $l;
 		my $bc = join("-", uc($l[0]), uc($l[1]));
-		$bclen = length($l[0]);
-		$samples{$bc} = $l[2];
-		$group = $l[5] if ($group eq "NULL" or $group eq "Group");
+        if ($bc =~ /^[ACGT]/){
+    		$bclen = length($l[0]);
+		    $samples{$bc} = $l[2];
+		    $group = $l[5] if ($group eq "NULL" or $group eq "Group");
+		}
 	}
 close IN;
 

@@ -21,8 +21,8 @@ use strict;
 #2 reverse fastq
 #3 primer names, one of V4EMB, V6, etc
 
-my @lprimerlen = (19, 20, 19);
-my @rprimerlen = (20, 31, 18);
+my @lprimerlen = (19, 20, 19, 18, 20, 18);
+my @rprimerlen = (20, 31, 18, 17, 19, 18);
 
 my  $primer = 1;
 if ( defined $ARGV[3]){
@@ -30,6 +30,9 @@ if ( defined $ARGV[3]){
 	$primer = 0 if $ARGV[3] eq "ITS6";
 	$primer = 1 if $ARGV[3] eq "Kcnq1ot1";
 	$primer = 1 if $ARGV[3] eq "V4EMB";
+	$primer = 3 if $ARGV[3] eq "MCHII_SOSP";
+	$primer = 4 if $ARGV[3] eq "SLADE_cDNA";
+	$primer = 5 if $ARGV[3] eq "ITS34";
 }
 my %samples;
 
