@@ -69,21 +69,21 @@ open (IN2, "< $ARGV[2]") or die "$!\n";
 			$dataL = "$l1\n";
 			$dataR = "$l2\n";
 			#added check for line length gg, march 3, 2015
-		}elsif($c % 4 == 1 && length($l2) > (12 + $rprimerlen[$primer]) ){ #seq line
+		}elsif($c % 4 == 1 && length($l2) > (($bclen + 4) + $rprimerlen[$primer]) ){ #seq line
 
-			my $bc = join( "-", substr($l1, 4,8), substr($l2, 4,8) );
+			my $bc = join( "-", substr($l1, 4,$bclen), substr($l2, 4,$bclen) );
 			#print "$c $bc \n$l1\n$l2\n";
 			if (exists $samples{$bc}){
 				$keep = $bc ;
-				$dataL .= substr($l1, (12 + $lprimerlen[$primer]) ) . "\n";
-				$dataR .= substr($l2, (12 + $rprimerlen[$primer]) ) . "\n";
+				$dataL .= substr($l1, (($bclen + 4) + $lprimerlen[$primer]) ) . "\n";
+				$dataR .= substr($l2, (($bclen + 4) + $rprimerlen[$primer]) ) . "\n";
 			}
 		}elsif($c % 4 == 2 ){ #second def line
 			$dataL .= "+\n";
 			$dataR .= "+\n";
 		}elsif($c % 4 == 3 && $keep ne "F") { #qscore
-			$dataL .= substr($l1, (12 + $lprimerlen[$primer]) ) . "\n";
-			$dataR .= substr($l2, (12 + $rprimerlen[$primer]) ) . "\n";
+			$dataL .= substr($l1, (($bclen + 4) + $lprimerlen[$primer]) ) . "\n";
+			$dataR .= substr($l2, (($bclen + 4) + $rprimerlen[$primer]) ) . "\n";
 		}
 		$c++;
 

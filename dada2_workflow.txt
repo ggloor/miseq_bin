@@ -21,10 +21,10 @@ library(ggplot2); packageVersion("ggplot2")
 
 # this is my common coda and filtering functions
 # change the path accordingly
-source("~/git/compositions/CoDaSeq/chunk/codaSeq_functions.R")
+source("~/git/CoDaSeq/chunk/codaSeq_functions.R")
 
 # CHANGE ME to the directory containing the fastq files after unzipping.
-path <- "demultiplex_group/"
+path <- "demultiplex_BARIATRIC_PLATE1/"
 
 # get the list of files
 fns <- list.files(path)

@@ -20,9 +20,15 @@ use strict;
 #1 forward fastq
 #2 reverse fastq
 #3 primer names, one of V4EMB, V6, etc
-
-my @lprimerlen = (19, 20, 19, 18, 20, 18);
-my @rprimerlen = (20, 31, 18, 17, 19, 18);
+#4 barcode length, default =8
+if (!$ARGV[0]){
+	print "samples.txt, forward.fastq, reverse.fastq, primer.name, barcode.length\n";
+	exit;
+}
+my @lprimerlen = (19, 20, 19);
+my @rprimerlen = (20, 31, 18);
+my $bclen = 8;
+$bclen = $ARGV[4] if $ARGV[4];
 
 my  $primer = 1;
 if ( defined $ARGV[3]){
