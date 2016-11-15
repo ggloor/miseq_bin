@@ -25,7 +25,7 @@ if ( defined $ARGV[3]){
 	$primer = 1 if $ARGV[3] eq "V4EMB";
 }
 my %samples;
-my $bclen = 8;
+my $bclen = 12; #Golay are 12-mers
 my $group ="NULL";
 
 # open samples.txt file and make a hash of forwardbc-reversebc  with value sampleID
