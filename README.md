@@ -1,3 +1,5 @@
+### NOTE: AS OF 2017 THIS WORKFLOW IS NO LONGER MAINTAINED. PLEASE USE THE dada2 workflow
+
 	Mar 2015
 	Working doc by Jean Macklaim
 	This is a working document. There are no guarantees that the instructions will be accurate
