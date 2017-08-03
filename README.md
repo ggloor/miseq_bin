@@ -7,9 +7,8 @@ This is a replacement workflow for the old scripts `workflow.sh`. The overlappin
 
 This pipeline was modified from the [dada2 tutorial for Illumina reads](http://benjjneb.github.io/dada2/tutorial.html). There are some examples on this page on how to interpret the QC plots and how to choose parameters.
 
----
 ### Getting your data from LRGC
-
+---
 - All Illumina MiSeq/NextSeq runs are posted to BaseSpace. You need an account to view your run (speak to David Carter)
 - BaseSpace gives you a quality report on your run - you should have a look
 
@@ -26,7 +25,7 @@ The file to download will be several Gb. Download to your machine and copy to cj
 1. Make a directory for your current study/run (usually named by your study name) - **THIS IS YOUR WORKING DIRECTORY**
   - Example working directory: `/Volumes/longlunch/seq/LRGC/jean/study1`
     >- _If you do not have a working dir on cjelli in /Groups/LRGC/ then ASK._
-    - _DO NOT use someone else's working directory, or put data in your home directory_
+    >- _DO NOT use someone else's working directory, or put data in your home directory_
 2. Make sure you have in your working directory:
   3. A copy of `dada2_workflow.R`
     - This will be the version you will modify for your own data
@@ -79,8 +78,8 @@ You will need to download
 - The Silva non-redundant training set e.g. `silva_nr_v123_train_set.fa.gz`
 
 >##### _Some things to keep in mind_
-- Do not make multiple copies of the scripts, your reads, etc. We have limited disk space and will delete as necessary
-- Do not rename original files (e.g. reads) because we won't be able to tell where they originated from
+>- Do not make multiple copies of the scripts, your reads, etc. We have limited disk space and will delete as necessary
+>- Do not rename original files (e.g. reads) because we won't be able to tell where they originated from
 
 ---
 ### Running the pipeline
@@ -105,7 +104,7 @@ You should have have a working copy of `dada2_workflow.R` where you have made th
 The first time you run the pipeline you may want to do so "line-by-line" (i.e. copy and paste each line to execute) to ensure each step completes before going to the next step.
 
 >##### _A note about taxonomy assignment_
->The script includes a default method of taxonomy assingnment (using the SILVA database) **BUT YOU SHOULD CONSIDER THIS ONLY AN APPROXIMATE OR "ROUGH ESTIMATE" OF TAXONOMY**. This may not be the ideal database to get the best taxonomy assignment for your data. You may want to re-assign your taxonomy at a different point.
+>The script includes a default method of taxonomy assignment (using the SILVA database) **BUT YOU SHOULD CONSIDER THIS ONLY AN APPROXIMATE OR "ROUGH ESTIMATE" OF TAXONOMY**. This may not be the ideal database to get the best taxonomy assignment for your data. You may want to re-assign your taxonomy at a different point.
 
 ### Output
 The main output you will use for downstream analysis are:
