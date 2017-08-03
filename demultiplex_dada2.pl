@@ -26,7 +26,7 @@ if ( defined $ARGV[3]){
 }
 my %samples;
 my $bclen = 12; #Golay are 12-mers
-my $group ="NULL";
+my $group ="reads";
 
 # open samples.txt file and make a hash of forwardbc-reversebc  with value sampleID
 # also get the barcode length
@@ -38,7 +38,7 @@ open (IN, "< $ARGV[0]") or die "$!\n";
         if ($bc =~ /^[ACGT]/){
     		$bclen = length($l[0]);
 		    $samples{$bc} = $l[2];
-		    $group = $l[5] if ($group eq "NULL" or $group eq "Group");
+#		    $group = $l[5] if ($group eq "NULL" or $group eq "reads");
 		}
 	}
 close IN;
