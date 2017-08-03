@@ -8,7 +8,7 @@ This is a replacement workflow for the old scripts `workflow.sh`. The overlappin
 This pipeline was modified from the [dada2 tutorial for Illumina reads](http://benjjneb.github.io/dada2/tutorial.html). There are some examples on this page on how to interpret the QC plots and how to choose parameters.
 
 ### Getting your data from LRGC
----
+
 - All Illumina MiSeq/NextSeq runs are posted to BaseSpace. You need an account to view your run (speak to David Carter)
 - BaseSpace gives you a quality report on your run - you should have a look
 
@@ -18,7 +18,7 @@ If you are woking on cjelli (server), make sure you have an account and a workin
 The file to download will be several Gb. Download to your machine and copy to cjelli (if you have enough bandwidth)
  or come into the Gloor lab to download directly to cjelli
 
----
+
 ### Setup your working directory
  All projects on cjelli are located on `/Volumes/longlunch/seq/LRGC/YourUserName`
 
@@ -60,7 +60,7 @@ The file to download will be several Gb. Download to your machine and copy to cj
 - **Rpri** - the name of the right primer
 - **Group** - which study the sample belongs to
 
----
+
 ### Setup your scripts and paths
 
 ##### On cjelli
@@ -81,7 +81,7 @@ You will need to download
 >- Do not make multiple copies of the scripts, your reads, etc. We have limited disk space and will delete as necessary
 >- Do not rename original files (e.g. reads) because we won't be able to tell where they originated from
 
----
+
 ### Running the pipeline
 
 ##### Step 1: Demultiplex the samples (BASH shell)
@@ -115,7 +115,7 @@ The main output you will use for downstream analysis are:
 ### Cleanup
 PLEASE cleanup files you don't need after running the workflow and completing your analysis. **IT WILL OTHERWISE BE REMOVED AT SOME LATER TIME POINT WITHOUT WARNING AND WE ARE NOT RESPONSIBLE FOR LOST DATA.** This is a shared server....we can't keep everything forever
 
----
+
 #### Common problems
 - All files (samples.txt, otu_table, etc.) must be UTF-8 with Unix newline characters. It should be tab-delimited
 - Check that your paths are correct! If you don't understand relative and absolute paths...get help!
@@ -131,7 +131,7 @@ PLEASE cleanup files you don't need after running the workflow and completing yo
 - Do you have enough samples to test your hypotheses? Do you trust your data?
 	- Think about: how variable are my data? Does what I see make sense based on what I know about the biological system?
 
----
+
 ## Authors
 - [**Greg Gloor**](https://github.com/ggloor) constructed the initial data2 workflow
 - [**Jean Macklaim**](https://github.com/mmacklai) compiled the documentation and cleaned up the code
