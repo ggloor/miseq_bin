@@ -1,14 +1,4 @@
 # dada2 pipeline for processing Illumina 16S reads
-=======
-### NOTE: AS OF 2017 THIS WORKFLOW IS NO LONGER MAINTAINED. PLEASE USE THE dada2 workflow
-
-	Mar 2015
-	Working doc by Jean Macklaim
-	This is a working document. There are no guarantees that the instructions will be accurate
-	or current, but efforts are made to do so
-	
-	May 2015 gg 
-	This document has been incorporated into the main branch
 
 ## Overview
 This pipeline will take your paired fastq reads (from Illumina MiSeq or HiSeq) and generate an OTU counts table with an approximate taxonomy assignment. The reads have to have been generated using [Gloor Lab Illumina SOP](https://github.com/ggloor/miseq_bin/blob/dada2/Illumina_SOP.pdf) so that the reads are paired, overlapping, and contain the barcode and primer information (have not been demultiplexed or had primers or barcodes removed).
