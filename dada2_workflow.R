@@ -76,10 +76,30 @@ for(i in seq_along(fnFs)) {
 
 # filtered reads are output to demultiplex_reads
 
+#----------------------------------------------------------------
+# IF YOUR PROGRAM CRASHES YOU CAN USE THIS AS A CONTINUE POINT
+# SKIP THIS otherwise and go straight to dereplication
+# as long as your filtered reads were output
+# Use the commands below to lead the data, then go to the dereplication step
+#---------------------------------------------------------------------------
+##Load needed libraries and paths
+library(dada2)
+
+taxpath<-"/Volumes/longlunch/seq/annotationDB/dada2silva_nr_v123_train_set.fa.gz"
+reads<-"demultiplex_reads"
+
+#get the filenames with relative path
+#sort to ensure same order
+filtFs <- sort(list.files(reads, pattern="-F-filt.fastq.gz", full.names=TRUE))
+filtRs <- sort(list.files(reads, pattern="-R-filt.fastq.gz", full.names=TRUE))
+#get sample names only (remove path, and everything after the first "-")
+sample.names <- sapply(strsplit(basename(filtFs), "-"), `[`, 1)
+
 #-------------------------------------------------------
 # Dereplication
 #-------------------------------------------------------
-#Dereplication combines all identical sequencing reads into into “unique sequences” with a corresponding “abundance”: the number of reads with that unique sequence. Dereplication substantially reduces computation time by eliminating redundant comparisons.
+# Dereplication combines all identical sequencing reads into into “unique sequences” with a corresponding “abundance”: the number of reads with that unique sequence
+# Dereplication substantially reduces computation time by eliminating redundant comparisons.
 
 derepFs <- derepFastq(filtFs, verbose=TRUE)
 derepRs <- derepFastq(filtRs, verbose=TRUE)
