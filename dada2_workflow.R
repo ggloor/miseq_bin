@@ -134,7 +134,12 @@ seqtab.nochim <- removeBimeraDenovo(seqtab, verbose=TRUE)
 #samples are rows
 write.table(seqtab.nochim, file="dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
 
-# assign taxonomy
+#-------------------------------------------------------
+# Assign taxonomy
+#-------------------------------------------------------
+# NOTE: This is an APPROXIMATE taxonomy and may not be the best method for your data
+# There are many ways/databases to assign taxonomy, we are only using one.
+
 taxa <- assignTaxonomy(seqtab.nochim, taxpath)
 colnames(taxa) <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
 
@@ -150,11 +155,13 @@ seqtab.nochim.tax<-rbind(seqtab.nochim, tax.vector)
 t.seqtab.nochim.tax<-t(seqtab.nochim.tax)
 
 #remove the rownames (OTU sequences) to a separate table and replace with arbitrary OTU numbers
+# NOTE: in this case that OTUs are not the traditional "97% identical" sequence units since dada2 only collapses at 100%
 otu.seqs<-rownames(t.seqtab.nochim.tax)
 otu.num<-paste("OTU", seq(from = 0, to = nrow(t.seqtab.nochim.tax)-1), sep="_")
 
 rownames(t.seqtab.nochim.tax)<-otu.num
 
 #get the tables!
+# These are what you will use for all your downtream analysis
 write.table(t.seqtab.nochim.tax, file="dada2_nochim_tax.txt", sep="\t", col.names=NA, quote=F)
 write.table(otu.seqs, file="otu_seqs.txt", sep="\t", row.names=otu.num, col.names=F,  quote=F)
