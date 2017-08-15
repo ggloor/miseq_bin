@@ -2,7 +2,10 @@
 # This script is modified by JM from GG's original based on the dada2 tutorial found here:
 #http://benjjneb.github.io/dada2/tutorial.html
 
-# for more information to run the pipeline, scroll down to the README at: https://github.com/ggloor/miseq_bin
+# For more information to run the pipeline, scroll down to the README at:
+# https://github.com/ggloor/miseq_bin
+
+# This workflow is set up to be run on cjelli, you will need to modify for your own machine
 
 #-------------------------------------------------------
 # Before running
@@ -20,20 +23,29 @@ reads<-"demultiplex_reads"
 library(dada2); packageVersion("dada2")
 
 #Dump the R sessioninfo for later
-writeLines(capture.output(sessionInfo()), "RsessionInfo.txt")
+writeLines(capture.output(sessionInfo()), "RsessionInfo_dada2.txt")
 
 #-------------------------------------------------------
 #list the files
 #list.files(path)
 
+# Get the filenames with relative path
+# sort to ensure same order of fwd/rev reads
+fnFs <- sort(list.files(reads, pattern="-R1.fastq", full.names=TRUE))
+fnRs <- sort(list.files(reads, pattern="-R2.fastq", full.names=TRUE))
+# Get sample names only (remove path, and everything after the first "-")
+# Assuming filenames have format: SAMPLENAME-XXX.fastq
+sample.names <- sapply(strsplit(basename(filtFs), "-"), `[`, 1)
+
+### Old method
 # Sort ensures forward/reverse reads are in same order
-fnFs1 <- sort(list.files(reads, pattern="-R1.fastq"))
-fnRs2 <- sort(list.files(reads, pattern="-R2.fastq"))
+#fnFs1 <- sort(list.files(reads, pattern="-R1.fastq"))
+#fnRs2 <- sort(list.files(reads, pattern="-R2.fastq"))
 # Extract sample names, assuming filenames have format: SAMPLENAME-XXX.fastq
-sample.names <- sapply(strsplit(fnFs1, "-"), `[`, 1)
+#sample.names <- sapply(strsplit(fnFs1, "-"), `[`, 1)
 # Specify the full path to the fnFs and fnRs
-fnFs <- file.path(reads, fnFs1)
-fnRs <- file.path(reads, fnRs2)
+#fnFs <- file.path(reads, fnFs1)
+#fnRs <- file.path(reads, fnRs2)
 
 #-------------------------------------------------------
 # Test QC
@@ -96,6 +108,7 @@ filtFs <- sort(list.files(reads, pattern="-F-filt.fastq.gz", full.names=TRUE))
 filtRs <- sort(list.files(reads, pattern="-R-filt.fastq.gz", full.names=TRUE))
 #get sample names only (remove path, and everything after the first "-")
 sample.names <- sapply(strsplit(basename(filtFs), "-"), `[`, 1)
+#-------------------------------------------------------
 
 #-------------------------------------------------------
 # Dereplication
