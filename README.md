@@ -106,6 +106,9 @@ The first time you run the pipeline you may want to do so "line-by-line" (i.e. c
 >##### _A note about taxonomy assignment_
 >The script includes a default method of taxonomy assignment (using the SILVA database) **BUT YOU SHOULD CONSIDER THIS ONLY AN APPROXIMATE OR "ROUGH ESTIMATE" OF TAXONOMY**. This may not be the ideal database to get the best taxonomy assignment for your data. You may want to re-assign your taxonomy at a different point.
 
+See notes about assigning taxonomy with dada2 here:
+https://benjjneb.github.io/dada2/assign.html
+
 ### Output
 The main output you will use for downstream analysis are:
 - OTU counts table with taxonomic assignments (e.g.)
@@ -133,3 +136,13 @@ PLEASE cleanup files you don't need after running the workflow and completing yo
 ## Authors
 - [**Greg Gloor**](https://github.com/ggloor) constructed the initial data2 workflow
 - [**Jean Macklaim**](https://github.com/mmacklai) compiled the documentation and cleaned up the code
+
+### Resources
+dada2 tutorial:
+http://benjjneb.github.io/dada2/tutorial.html
+
+Taxonomy assignment and databases for dada2:
+https://benjjneb.github.io/dada2/assign.html
+
+Another tutorial by J. Bisanz
+https://jbisanz.github.io/BMS270_BMI219/
