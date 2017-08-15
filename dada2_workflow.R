@@ -2,11 +2,13 @@
 # This script is modified by JM from GG's original based on the dada2 tutorial found here:
 #http://benjjneb.github.io/dada2/tutorial.html
 
+# for more information to run the pipeline, scroll down to the README at: https://github.com/ggloor/miseq_bin
+
 #-------------------------------------------------------
 # Before running
 #-------------------------------------------------------
-# Demultiplex your samples (assign each read to a sample based on the barcode)
-# Start R
+# 1) Demultiplex your samples (assign each read to a sample based on the barcode) using demultiplex_dada2.pl
+# 2) Start R
 #-------------------------------------------------------
 # Setup
 #-------------------------------------------------------
