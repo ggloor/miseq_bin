@@ -35,7 +35,7 @@ fnFs <- sort(list.files(reads, pattern="-R1.fastq", full.names=TRUE))
 fnRs <- sort(list.files(reads, pattern="-R2.fastq", full.names=TRUE))
 # Get sample names only (remove path, and everything after the first "-")
 # Assuming filenames have format: SAMPLENAME-XXX.fastq
-sample.names <- sapply(strsplit(basename(filtFs), "-"), `[`, 1)
+sample.names <- sapply(strsplit(basename(fnFs), "-"), `[`, 1)
 
 ### Old method
 # Sort ensures forward/reverse reads are in same order
