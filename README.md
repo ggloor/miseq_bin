@@ -1,4 +1,4 @@
-# dada2 pipeline for processing Illumina 16S reads
+# Gloor Lab dada2 pipeline for processing Illumina 16S reads
 
 ## Overview
 This pipeline will take your paired fastq reads (from Illumina MiSeq or HiSeq) and generate an OTU counts table with an approximate taxonomy assignment. The reads have to have been generated using [Gloor Lab Illumina SOP](https://github.com/ggloor/miseq_bin/blob/dada2/Illumina_SOP.pdf) so that the reads are paired, overlapping, and contain the barcode and primer information (have not been demultiplexed or had primers or barcodes removed).
@@ -106,16 +106,18 @@ The first time you run the pipeline you may want to do so "line-by-line" (i.e. c
 >##### _A note about taxonomy assignment_
 >The script includes a default method of taxonomy assignment (using the SILVA database) **BUT YOU SHOULD CONSIDER THIS ONLY AN APPROXIMATE OR "ROUGH ESTIMATE" OF TAXONOMY**. This may not be the ideal database to get the best taxonomy assignment for your data. You may want to re-assign your taxonomy at a different point.
 
+See notes about assigning taxonomy with dada2 here:
+https://benjjneb.github.io/dada2/assign.html
+
 ### Output
 The main output you will use for downstream analysis are:
 - OTU counts table with taxonomic assignments (e.g.)
 - OTU sequence lookup table (e.g.)
--
 
 ### Cleanup
 PLEASE cleanup files you don't need after running the workflow and completing your analysis. **IT WILL OTHERWISE BE REMOVED AT SOME LATER TIME POINT WITHOUT WARNING AND WE ARE NOT RESPONSIBLE FOR LOST DATA.** This is a shared server....we can't keep everything forever
 
-
+---
 #### Common problems
 - All files (samples.txt, otu_table, etc.) must be UTF-8 with Unix newline characters. It should be tab-delimited
 - Check that your paths are correct! If you don't understand relative and absolute paths...get help!
@@ -131,7 +133,16 @@ PLEASE cleanup files you don't need after running the workflow and completing yo
 - Do you have enough samples to test your hypotheses? Do you trust your data?
 	- Think about: how variable are my data? Does what I see make sense based on what I know about the biological system?
 
-
 ## Authors
 - [**Greg Gloor**](https://github.com/ggloor) constructed the initial data2 workflow
 - [**Jean Macklaim**](https://github.com/mmacklai) compiled the documentation and cleaned up the code
+
+### Resources
+dada2 tutorial:
+http://benjjneb.github.io/dada2/tutorial.html
+
+Taxonomy assignment and databases for dada2:
+https://benjjneb.github.io/dada2/assign.html
+
+Another tutorial by J. Bisanz
+https://jbisanz.github.io/BMS270_BMI219/
