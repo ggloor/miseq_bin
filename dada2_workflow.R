@@ -16,7 +16,8 @@
 # Setup
 #-------------------------------------------------------
 #Paths to reference taxonomy and reads
-taxpath<-"/Volumes/longlunch/seq/annotationDB/dada2silva_nr_v123_train_set.fa.gz"
+taxpath<-"/Volumes/longlunch/seq/annotationDB/dada2/silva_nr_v123_train_set.fa.gz" #cjelli
+#taxpath<-"/Volumes/data/annotationDB/dada2/silva_nr_v123_train_set.fa.gz" #agrajag
 reads<-"demultiplex_reads"
 
 #Load needed libraries
