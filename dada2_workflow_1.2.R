@@ -51,14 +51,17 @@ sample.names <- sapply(strsplit(basename(fnFs), "-"), `[`, 1)
 #fnRs <- file.path(reads, fnRs2)
 
 #-------------------------------------------------------
-# Test QC
+# Check read quality
 #-------------------------------------------------------
-
-# test QC see, dada2 tutorial
+# check a random set of samples
 # Should change this to check other reads
 pdf("qualprofiles.pdf")
 plotQualityProfile(fnFs[[1]])
 plotQualityProfile(fnRs[[1]])
+plotQualityProfile(fnFs[[10]])
+plotQualityProfile(fnRs[[10]])
+plotQualityProfile(fnFs[[20]])
+plotQualityProfile(fnRs[[20]])
 dev.off()
 
 #-------------------------------------------------------
@@ -76,7 +79,7 @@ for(i in seq_along(fnFs)) {
   fastqPairedFilter(c(fnFs[i], fnRs[i]), c(filtFs[i], filtRs[i]),
             truncLen=c(183,174),
             maxN=0,
-            maxEE=(2,2),
+            maxEE=c(2,2),
             compress=TRUE, verbose=TRUE)
 }
 

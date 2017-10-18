@@ -51,14 +51,17 @@ sample.names <- sapply(strsplit(basename(fnFs), "-"), `[`, 1)
 #fnRs <- file.path(reads, fnRs2)
 
 #-------------------------------------------------------
-# Test QC
+# Check read quality
 #-------------------------------------------------------
-
-# test QC see, dada2 tutorial
+# check a random set of samples
 # Should change this to check other reads
 pdf("qualprofiles.pdf")
 plotQualityProfile(fnFs[[1]])
 plotQualityProfile(fnRs[[1]])
+plotQualityProfile(fnFs[[10]])
+plotQualityProfile(fnRs[[10]])
+plotQualityProfile(fnFs[[20]])
+plotQualityProfile(fnRs[[20]])
 dev.off()
 
 #-------------------------------------------------------
@@ -72,13 +75,11 @@ filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
 # that means 187 and 178 for V4 with paired 2x220 with 8 mer barcodes
 # that means 183 and 174 for V4 with paired 2x220 with 12 mer barcodes
 # DO NOT trim from the 5' end since primers and barcodes already trimmed off
-for(i in seq_along(fnFs)) {
-  filterAndTrim(c(fnFs[i], fnRs[i]), c(filtFs[i], filtRs[i]),
-            truncLen=c(183,174),
+filterAndTrim(fnFs, filtFs, fnRs, filtRs,
+			truncLen=c(220,175),
             maxN=0,
             maxEE=c(2,2),
         	compress=TRUE, verbose=TRUE, multithread=TRUE)
-}
 
 #example parameters. For paired reads, used a vector (2,2)
 	#truncQ=2, #truncate reads after a quality score of 2 or less
