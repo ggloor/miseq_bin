@@ -145,17 +145,18 @@ dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
 mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
 
 # make the sequence table, samples are by rows
-seqtab <- makeSequenceTable(mergers[names(mergers) != "Mock"])
+seqtab <- makeSequenceTable(mergers)
 
 # summarize the output by length
 table(nchar(colnames(seqtab)))
 
-# remove chimeras and save in seqtab.nochim
-seqtab.nochim <- removeBimeraDenovo(seqtab, verbose=TRUE)
+# remove chimeras and save in seqtab.nochim  - SLOW!!!!
+seqtab.nochim <- removeBimeraDenovo(seqtab, method="pooled", verbose=TRUE, multithread=TRUE)
+#The default "method=consensus" doesn't work - look into this
 
 #let's write the table, just in case
 #samples are rows
-write.table(seqtab.nochim, file="dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
+write.table(seqtab.nochim, file="dada2_nochim_temp.txt", sep="\t", col.names=NA, quote=F)
 
 # Check how many reads made it through the pipeline
 getN <- function(x) sum(getUniques(x))

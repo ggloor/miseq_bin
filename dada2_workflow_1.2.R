@@ -150,7 +150,7 @@ seqtab.nochim <- removeBimeraDenovo(seqtab, verbose=TRUE)
 
 #let's write the table, just in case
 #samples are rows
-write.table(seqtab.nochim, file="dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
+write.table(seqtab.nochim, file="dada2_nochim_temp.txt", sep="\t", col.names=NA, quote=F)
 
 #-------------------------------------------------------
 # Assign taxonomy
