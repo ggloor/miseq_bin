@@ -76,8 +76,8 @@ for(i in seq_along(fnFs)) {
   filterAndTrim(c(fnFs[i], fnRs[i]), c(filtFs[i], filtRs[i]),
             truncLen=c(183,174),
             maxN=0,
-            maxEE=(2,2),
-            compress=TRUE, verbose=TRUE, multithread=TRUE)
+            maxEE=c(2,2),
+        	compress=TRUE, verbose=TRUE, multithread=TRUE)
 }
 
 #example parameters. For paired reads, used a vector (2,2)
@@ -99,10 +99,10 @@ for(i in seq_along(fnFs)) {
 #---------------------------------------------------------------------------
 ###Load needed libraries and paths
 #library(dada2)
-#
+
 #taxpath<-"/Volumes/longlunch/seq/annotationDB/dada2silva_nr_v123_train_set.fa.gz"
 #reads<-"demultiplex_reads"
-#
+
 ##get the filenames with relative path
 ##sort to ensure same order
 #filtFs <- sort(list.files(reads, pattern="-F-filt.fastq.gz", full.names=TRUE))
