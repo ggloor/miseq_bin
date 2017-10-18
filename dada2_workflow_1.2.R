@@ -1,4 +1,4 @@
-# Jul 24 2017
+# Updated: 18-Oct-2017
 # This script is modified by JM from GG's original based on the dada2 tutorial found here:
 #http://benjjneb.github.io/dada2/tutorial.html
 
@@ -12,6 +12,8 @@
 #-------------------------------------------------------
 # 1) Demultiplex your samples (assign each read to a sample based on the barcode) using demultiplex_dada2.pl
 # 2) Start R
+#		OR...SOURCE THIS SCRIPT WITH
+#		nohup Rscript dada2_workflow.R &
 #-------------------------------------------------------
 # Setup
 #-------------------------------------------------------
@@ -72,22 +74,19 @@ filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
 # DO NOT trim from the 5' end since primers and barcodes already trimmed off
 for(i in seq_along(fnFs)) {
   fastqPairedFilter(c(fnFs[i], fnRs[i]), c(filtFs[i], filtRs[i]),
-                    trimLeft=c(1, 1),
-                    truncLen=c(183,174),
-                    maxN=0,
-                    maxEE=2,
-                    truncQ=2,
-                    compress=TRUE, verbose=TRUE)
+            truncLen=c(183,174),
+            maxN=0,
+            maxEE=(2,2),
+            compress=TRUE, verbose=TRUE)
 }
 
-#example parameters
+#example parameters. For paired reads, used a vector (2,2)
 	#truncQ=2, #truncate reads after a quality score of 2 or less
 	#truncLen=130, #truncate after 130 bases
 	#trimLeft=10, #remove 10 bases off the 5’ end of the sequence
 	#maxN=0, #Don’t allow any Ns in sequence
 	#maxEE=2, #A maximum number of expected errors
 	#rm.phix=TRUE, #Remove lingering PhiX (control DNA used in sequencing) as it is likely there is some.
-	#multithread=TRUE #Run parallel, if you can this will speed up filtering significantly. On some windows systems, this may not be possible.
 
 # filtered reads are output to demultiplex_reads
 
@@ -97,18 +96,18 @@ for(i in seq_along(fnFs)) {
 # as long as your filtered reads were output
 # Use the commands below to lead the data, then go to the dereplication step
 #---------------------------------------------------------------------------
-##Load needed libraries and paths
-library(dada2)
-
-taxpath<-"/Volumes/longlunch/seq/annotationDB/dada2silva_nr_v123_train_set.fa.gz"
-reads<-"demultiplex_reads"
-
-#get the filenames with relative path
-#sort to ensure same order
-filtFs <- sort(list.files(reads, pattern="-F-filt.fastq.gz", full.names=TRUE))
-filtRs <- sort(list.files(reads, pattern="-R-filt.fastq.gz", full.names=TRUE))
-#get sample names only (remove path, and everything after the first "-")
-sample.names <- sapply(strsplit(basename(filtFs), "-"), `[`, 1)
+###Load needed libraries and paths
+#library(dada2)
+#
+#taxpath<-"/Volumes/longlunch/seq/annotationDB/dada2silva_nr_v123_train_set.fa.gz"
+#reads<-"demultiplex_reads"
+#
+##get the filenames with relative path
+##sort to ensure same order
+#filtFs <- sort(list.files(reads, pattern="-F-filt.fastq.gz", full.names=TRUE))
+#filtRs <- sort(list.files(reads, pattern="-R-filt.fastq.gz", full.names=TRUE))
+##get sample names only (remove path, and everything after the first "-")
+#sample.names <- sapply(strsplit(basename(filtFs), "-"), `[`, 1)
 #-------------------------------------------------------
 
 #-------------------------------------------------------
