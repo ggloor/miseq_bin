@@ -93,7 +93,7 @@ for(i in seq_along(fnFs)) {
 
 #----------------------------------------------------------------
 # IF YOUR PROGRAM CRASHES YOU CAN USE THIS AS A CONTINUE POINT
-# SKIP THIS otherwise and go straight to dereplication
+# SKIP THIS otherwise and go straight to the next step
 # as long as your filtered reads were output
 # Use the commands below to lead the data, then go to the dereplication step
 #---------------------------------------------------------------------------
@@ -110,6 +110,15 @@ for(i in seq_along(fnFs)) {
 ##get sample names only (remove path, and everything after the first "-")
 #sample.names <- sapply(strsplit(basename(filtFs), "-"), `[`, 1)
 #-------------------------------------------------------
+#-------------------------------------------------------
+# Learn the error rates - SLOW !!
+#-------------------------------------------------------
+errF <- learnErrors(filtFs, multithread=TRUE)
+errR <- learnErrors(filtRs, multithread=TRUE)
+
+pdf("errF.pdf")
+plotErrors(errF, nominalQ=TRUE)
+dev.off()
 
 #-------------------------------------------------------
 # Dereplication
@@ -124,15 +133,12 @@ names(derepFs) <- sample.names
 names(derepRs) <- sample.names
 
 #-------------------------------------------------------
-# Sample inference - SLOW!!
+# Sample inference and merge paired reads
 #-------------------------------------------------------
+#Infer the sequence variants in each sample:
 
-# SLOW!!
-# Perform joint sample inference and error rate estimation (takes a few minutes)
-# this is the dada2 magic function that determines which reads are likely
-# TRUE and which reads are likely derived by PCR or seq error
-dadaFs <- dada(derepFs, err=inflateErr(tperr1,3), selfConsist = TRUE)
-dadaRs <- dada(derepRs, err=inflateErr(tperr1,3), selfConsist = TRUE)
+dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
+dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
 
 # overlap the ends of the forward and reverse reads
 mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
@@ -149,6 +155,13 @@ seqtab.nochim <- removeBimeraDenovo(seqtab, verbose=TRUE)
 #let's write the table, just in case
 #samples are rows
 write.table(seqtab.nochim, file="dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
+
+# Check how many reads made it through the pipeline
+getN <- function(x) sum(getUniques(x))
+track <- cbind(out, sapply(dadaFs, getN), sapply(mergers, getN), rowSums(seqtab), rowSums(seqtab.nochim))
+colnames(track) <- c("input", "filtered", "denoised", "merged", "tabled", "nonchim")
+rownames(track) <- sample.names
+write.table(track, file="track.txt", sep="\t", col.names=NA, quote=F)
 
 #-------------------------------------------------------
 # Assign taxonomy
