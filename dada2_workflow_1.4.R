@@ -1,4 +1,4 @@
-# Jul 24 2017
+# Updated: 18-Oct-2017
 # This script is modified by JM from GG's original based on the dada2 tutorial found here:
 #http://benjjneb.github.io/dada2/tutorial.html
 
@@ -12,6 +12,8 @@
 #-------------------------------------------------------
 # 1) Demultiplex your samples (assign each read to a sample based on the barcode) using demultiplex_dada2.pl
 # 2) Start R
+#		OR...SOURCE THIS SCRIPT WITH
+#		nohup Rscript dada2_workflow.R &
 #-------------------------------------------------------
 # Setup
 #-------------------------------------------------------
@@ -49,14 +51,17 @@ sample.names <- sapply(strsplit(basename(fnFs), "-"), `[`, 1)
 #fnRs <- file.path(reads, fnRs2)
 
 #-------------------------------------------------------
-# Test QC
+# Check read quality
 #-------------------------------------------------------
-
-# test QC see, dada2 tutorial
+# check a random set of samples
 # Should change this to check other reads
 pdf("qualprofiles.pdf")
 plotQualityProfile(fnFs[[1]])
 plotQualityProfile(fnRs[[1]])
+plotQualityProfile(fnFs[[10]])
+plotQualityProfile(fnRs[[10]])
+plotQualityProfile(fnFs[[20]])
+plotQualityProfile(fnRs[[20]])
 dev.off()
 
 #-------------------------------------------------------
@@ -70,46 +75,51 @@ filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
 # that means 187 and 178 for V4 with paired 2x220 with 8 mer barcodes
 # that means 183 and 174 for V4 with paired 2x220 with 12 mer barcodes
 # DO NOT trim from the 5' end since primers and barcodes already trimmed off
-for(i in seq_along(fnFs)) {
-  fastqPairedFilter(c(fnFs[i], fnRs[i]), c(filtFs[i], filtRs[i]),
-                    trimLeft=c(1, 1),
-                    truncLen=c(183,174),
-                    maxN=0,
-                    maxEE=2,
-                    truncQ=2,
-                    compress=TRUE, verbose=TRUE)
-}
+filterAndTrim(fnFs, filtFs, fnRs, filtRs,
+			truncLen=c(220,175),
+            maxN=0,
+            maxEE=c(2,2),
+        	compress=TRUE, verbose=TRUE, multithread=TRUE)
 
-#example parameters
+#example parameters. For paired reads, used a vector (2,2)
 	#truncQ=2, #truncate reads after a quality score of 2 or less
 	#truncLen=130, #truncate after 130 bases
 	#trimLeft=10, #remove 10 bases off the 5’ end of the sequence
 	#maxN=0, #Don’t allow any Ns in sequence
 	#maxEE=2, #A maximum number of expected errors
 	#rm.phix=TRUE, #Remove lingering PhiX (control DNA used in sequencing) as it is likely there is some.
-	#multithread=TRUE #Run parallel, if you can this will speed up filtering significantly. On some windows systems, this may not be possible.
+	# On Windows set multithread=FALSE
 
 # filtered reads are output to demultiplex_reads
 
 #----------------------------------------------------------------
 # IF YOUR PROGRAM CRASHES YOU CAN USE THIS AS A CONTINUE POINT
-# SKIP THIS otherwise and go straight to dereplication
+# SKIP THIS otherwise and go straight to the next step
 # as long as your filtered reads were output
 # Use the commands below to lead the data, then go to the dereplication step
 #---------------------------------------------------------------------------
-##Load needed libraries and paths
-library(dada2)
+###Load needed libraries and paths
+#library(dada2)
 
-taxpath<-"/Volumes/longlunch/seq/annotationDB/dada2silva_nr_v123_train_set.fa.gz"
-reads<-"demultiplex_reads"
+#taxpath<-"/Volumes/longlunch/seq/annotationDB/dada2silva_nr_v123_train_set.fa.gz"
+#reads<-"demultiplex_reads"
 
-#get the filenames with relative path
-#sort to ensure same order
-filtFs <- sort(list.files(reads, pattern="-F-filt.fastq.gz", full.names=TRUE))
-filtRs <- sort(list.files(reads, pattern="-R-filt.fastq.gz", full.names=TRUE))
-#get sample names only (remove path, and everything after the first "-")
-sample.names <- sapply(strsplit(basename(filtFs), "-"), `[`, 1)
+##get the filenames with relative path
+##sort to ensure same order
+#filtFs <- sort(list.files(reads, pattern="-F-filt.fastq.gz", full.names=TRUE))
+#filtRs <- sort(list.files(reads, pattern="-R-filt.fastq.gz", full.names=TRUE))
+##get sample names only (remove path, and everything after the first "-")
+#sample.names <- sapply(strsplit(basename(filtFs), "-"), `[`, 1)
 #-------------------------------------------------------
+#-------------------------------------------------------
+# Learn the error rates - SLOW !!
+#-------------------------------------------------------
+errF <- learnErrors(filtFs, multithread=TRUE)
+errR <- learnErrors(filtRs, multithread=TRUE)
+
+pdf("errF.pdf")
+plotErrors(errF, nominalQ=TRUE)
+dev.off()
 
 #-------------------------------------------------------
 # Dereplication
@@ -124,31 +134,38 @@ names(derepFs) <- sample.names
 names(derepRs) <- sample.names
 
 #-------------------------------------------------------
-# Sample inference - SLOW!!
+# Sample inference and merge paired reads
 #-------------------------------------------------------
+#Infer the sequence variants in each sample:
 
-# SLOW!!
-# Perform joint sample inference and error rate estimation (takes a few minutes)
-# this is the dada2 magic function that determines which reads are likely
-# TRUE and which reads are likely derived by PCR or seq error
-dadaFs <- dada(derepFs, err=inflateErr(tperr1,3), selfConsist = TRUE)
-dadaRs <- dada(derepRs, err=inflateErr(tperr1,3), selfConsist = TRUE)
+dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
+dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
 
 # overlap the ends of the forward and reverse reads
 mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
 
 # make the sequence table, samples are by rows
-seqtab <- makeSequenceTable(mergers[names(mergers) != "Mock"])
+seqtab <- makeSequenceTable(mergers)
 
 # summarize the output by length
 table(nchar(colnames(seqtab)))
 
-# remove chimeras and save in seqtab.nochim
-seqtab.nochim <- removeBimeraDenovo(seqtab, verbose=TRUE)
+# remove chimeras and save in seqtab.nochim  - SLOW!!!!
+#The new default "method=consensus" doesn't work - look into this
+seqtab.nochim <- removeBimeraDenovo(seqtab, method="pooled", verbose=TRUE, multithread=TRUE)
 
 #let's write the table, just in case
 #samples are rows
-write.table(seqtab.nochim, file="dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
+#write.table(seqtab.nochim, file="dada2_nochim_temp.txt", sep="\t", col.names=NA, quote=F)
+# Or save the Rsession save.image("dada2.RData")
+
+
+# Check how many reads made it through the pipeline
+getN <- function(x) sum(getUniques(x))
+track <- cbind(out, sapply(dadaFs, getN), sapply(mergers, getN), rowSums(seqtab), rowSums(seqtab.nochim))
+colnames(track) <- c("input", "filtered", "denoised", "merged", "tabled", "nonchim")
+rownames(track) <- sample.names
+write.table(track, file="track.txt", sep="\t", col.names=NA, quote=F)
 
 #-------------------------------------------------------
 # Assign taxonomy
@@ -156,7 +173,7 @@ write.table(seqtab.nochim, file="dada2_nochim.txt", sep="\t", col.names=NA, quot
 # NOTE: This is an APPROXIMATE taxonomy and may not be the best method for your data
 # There are many ways/databases to assign taxonomy, we are only using one.
 
-taxa <- assignTaxonomy(seqtab.nochim, taxpath)
+taxa <- assignTaxonomy(seqtab.nochim, taxpath, multithread=TRUE)
 colnames(taxa) <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
 
 #get the taxonomy string
