@@ -151,12 +151,14 @@ seqtab <- makeSequenceTable(mergers)
 table(nchar(colnames(seqtab)))
 
 # remove chimeras and save in seqtab.nochim  - SLOW!!!!
+#The new default "method=consensus" doesn't work - look into this
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="pooled", verbose=TRUE, multithread=TRUE)
-#The default "method=consensus" doesn't work - look into this
 
 #let's write the table, just in case
 #samples are rows
-write.table(seqtab.nochim, file="dada2_nochim_temp.txt", sep="\t", col.names=NA, quote=F)
+#write.table(seqtab.nochim, file="dada2_nochim_temp.txt", sep="\t", col.names=NA, quote=F)
+# Or save the Rsession save.image("dada2.RData")
+
 
 # Check how many reads made it through the pipeline
 getN <- function(x) sum(getUniques(x))
