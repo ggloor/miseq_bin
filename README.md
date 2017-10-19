@@ -89,9 +89,9 @@ You will need to download
 - Make sure you use the correct name for the primer set you used e.g. `V4EMB`. See the list of available primers [here](https://github.com/ggloor/miseq_bin/blob/dada2/primer_sequences.txt)
 
 ````
-$BIN=/Volumes/longlunch/seq/LRGC/miseq_bin
+BIN=/Volumes/longlunch/seq/LRGC/miseq_bin
 
-BIN/demultiplex_dada2.pl samples.txt reads/R1_001.fastq reads/R2_001.fastq V4EMB
+$BIN/demultiplex_dada2.pl samples.txt reads/R1_001.fastq reads/R2_001.fastq V4EMB
 
 #Change the names of R1_001.fastq and R2_001.fastq to match your file names - do not change your actual file names
 ````
