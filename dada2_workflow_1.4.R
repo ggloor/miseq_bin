@@ -75,7 +75,7 @@ filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
 # that means 187 and 178 for V4 with paired 2x220 with 8 mer barcodes
 # that means 183 and 174 for V4 with paired 2x220 with 12 mer barcodes
 # DO NOT trim from the 5' end since primers and barcodes already trimmed off
-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
+out<-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
 			truncLen=c(220,175),
             maxN=0,
             maxEE=c(2,2),
@@ -121,6 +121,8 @@ pdf("errF.pdf")
 plotErrors(errF, nominalQ=TRUE)
 dev.off()
 
+save.image("dada2_1.RData") #Insurance in case your script dies. Delete this later
+
 #-------------------------------------------------------
 # Dereplication
 #-------------------------------------------------------
@@ -132,6 +134,8 @@ derepRs <- derepFastq(filtRs, verbose=TRUE)
 # Name the derep-class objects by the sample names
 names(derepFs) <- sample.names
 names(derepRs) <- sample.names
+
+save.image("dada2_2.RData")  #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Sample inference and merge paired reads
@@ -156,9 +160,9 @@ seqtab.nochim <- removeBimeraDenovo(seqtab, method="pooled", verbose=TRUE, multi
 
 #let's write the table, just in case
 #samples are rows
-#write.table(seqtab.nochim, file="dada2_nochim_temp.txt", sep="\t", col.names=NA, quote=F)
+write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
 # Or save the Rsession save.image("dada2.RData")
-
+#save.image("dada2_3.RData")  #Insurance in case your script dies. Delete this later
 
 # Check how many reads made it through the pipeline
 getN <- function(x) sum(getUniques(x))
