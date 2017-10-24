@@ -187,10 +187,10 @@ seqtab.nochim.tax<-rbind(seqtab.nochim, tax.vector)
 #transpose the table so samples are columns
 t.seqtab.nochim.tax<-t(seqtab.nochim.tax)
 
-#remove the rownames (OTU sequences) to a separate table and replace with arbitrary OTU numbers
-# NOTE: in this case that OTUs are not the traditional "97% identical" sequence units since dada2 only collapses at 100%
+#remove the rownames (ASU sequences) to a separate table and replace with arbitrary ASU numbers
+# NOTE: in this case that ASUs are not the traditional "97% identical" sequence units since dada2 only collapses at 100%
 otu.seqs<-rownames(t.seqtab.nochim.tax)
-otu.num<-paste("OTU", seq(from = 0, to = nrow(t.seqtab.nochim.tax)-1), sep="_")
+otu.num<-paste("ASU", seq(from = 0, to = nrow(t.seqtab.nochim.tax)-1), sep="_")
 
 rownames(t.seqtab.nochim.tax)<-otu.num
 
