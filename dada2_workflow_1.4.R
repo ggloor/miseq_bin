@@ -114,9 +114,12 @@ out<-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
 #-------------------------------------------------------
 # Learn the error rates - SLOW !!
 #-------------------------------------------------------
-errF <- learnErrors(filtFs, multithread=TRUE)
-errR <- learnErrors(filtRs, multithread=TRUE)
+errF <- learnErrors(filtFs, multithread=TRUE, randomize=TRUE)
+errR <- learnErrors(filtRs, multithread=TRUE, randomize=TRUE)
+#	randomize=TRUE #don't pick the first 1mil for the model, pick a random set
 
+#Plot the error rats and CHECK THE FIT
+# Do not proceed without a good fit
 pdf("errF.pdf")
 plotErrors(errF, nominalQ=TRUE)
 dev.off()
