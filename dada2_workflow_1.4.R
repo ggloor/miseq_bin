@@ -1,6 +1,7 @@
 # Updated: 18-Oct-2017
 # This script is modified by JM from GG's original based on the dada2 tutorial found here:
 #http://benjjneb.github.io/dada2/tutorial.html
+# I HIGHLY RECOMMEND you cross-reference to the above tutorial to understand what you are doing
 
 # For more information to run the pipeline, scroll down to the README at:
 # https://github.com/ggloor/miseq_bin
@@ -80,6 +81,7 @@ out<-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
             maxN=0,
             maxEE=c(2,2),
         	compress=TRUE, verbose=TRUE, multithread=TRUE)
+write.table(out, file="readsout.txt", sep="\t", col.names=NA, quote=F)
 
 #example parameters. For paired reads, used a vector (2,2)
 	#truncQ=2, #truncate reads after a quality score of 2 or less
@@ -124,6 +126,10 @@ pdf("errF.pdf")
 plotErrors(errF, nominalQ=TRUE)
 dev.off()
 
+pdf("errR.pdf")
+plotErrors(errR, nominalQ=TRUE)
+dev.off()
+
 save.image("dada2_1.RData") #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
@@ -141,23 +147,24 @@ names(derepRs) <- sample.names
 save.image("dada2_2.RData")  #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
-# Sample inference and merge paired reads
+# Sample inference, merge paired reads, remove chimeras
 #-------------------------------------------------------
-#Infer the sequence variants in each sample:
+#Infer the sequence variants in each sample - SLOW!!
 
 dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
 dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
 
 # overlap the ends of the forward and reverse reads
 mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
+#, justConcatenate=TRUE for V59
 
 # make the sequence table, samples are by rows
 seqtab <- makeSequenceTable(mergers)
 
 # summarize the output by length
-table(nchar(colnames(seqtab)))
+table(nchar(getSequences(seqtab)))
 
-# remove chimeras and save in seqtab.nochim  - SLOW!!!!
+# remove chimeras and save in seqtab.nochim - SLOW!!!!
 #The new default "method=consensus" doesn't work - look into this
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="pooled", verbose=TRUE, multithread=TRUE)
 
@@ -167,7 +174,11 @@ write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA,
 # Or save the Rsession save.image("dada2.RData")
 #save.image("dada2_3.RData")  #Insurance in case your script dies. Delete this later
 
+#-------------------------------------------------------
+# Sanity check
+#-------------------------------------------------------
 # Check how many reads made it through the pipeline
+# This is good to report in your methods/results
 getN <- function(x) sum(getUniques(x))
 track <- cbind(out, sapply(dadaFs, getN), sapply(mergers, getN), rowSums(seqtab), rowSums(seqtab.nochim))
 colnames(track) <- c("input", "filtered", "denoised", "merged", "tabled", "nonchim")
@@ -204,4 +215,4 @@ rownames(t.seqtab.nochim.tax)<-otu.num
 #get the tables!
 # These are what you will use for all your downtream analysis
 write.table(t.seqtab.nochim.tax, file="dada2_nochim_tax.txt", sep="\t", col.names=NA, quote=F)
-write.table(otu.seqs, file="otu_seqs.txt", sep="\t", row.names=otu.num, col.names=F,  quote=F)
+write.table(otu.seqs, file="asu_seqs.txt", sep="\t", row.names=otu.num, col.names=F,  quote=F)
