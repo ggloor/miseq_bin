@@ -68,6 +68,7 @@ dev.off()
 #-------------------------------------------------------
 # Filter reads based on QC
 #-------------------------------------------------------
+message ("#Filtering reads based on QC")
 # Make filenames for the filtered fastq files
 filtFs <- paste0(reads, "/", sample.names, "-F-filt.fastq.gz")
 filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
@@ -116,6 +117,7 @@ write.table(out, file="readsout.txt", sep="\t", col.names=NA, quote=F)
 #-------------------------------------------------------
 # Learn the error rates - SLOW !!
 #-------------------------------------------------------
+message ("#Learning error rates - SLOW !!")
 errF <- learnErrors(filtFs, multithread=TRUE, randomize=TRUE)
 errR <- learnErrors(filtRs, multithread=TRUE, randomize=TRUE)
 #	randomize=TRUE #don't pick the first 1mil for the model, pick a random set
@@ -135,6 +137,8 @@ save.image("dada2_1.RData") #Insurance in case your script dies. Delete this lat
 #-------------------------------------------------------
 # Dereplication
 #-------------------------------------------------------
+message ("#Dereplicating the reads")
+
 # Dereplication combines all identical sequencing reads into into “unique sequences” with a corresponding “abundance”: the number of reads with that unique sequence
 # Dereplication substantially reduces computation time by eliminating redundant comparisons.
 
@@ -149,12 +153,14 @@ save.image("dada2_2.RData")  #Insurance in case your script dies. Delete this la
 #-------------------------------------------------------
 # Sample inference, merge paired reads, remove chimeras
 #-------------------------------------------------------
+message ("#Inferring the sequence variants in each sample - SLOW!!")
 #Infer the sequence variants in each sample - SLOW!!
 
 dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
 dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
 
 # overlap the ends of the forward and reverse reads
+message ("#merging the Fwd and Rev reads")
 mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
 #, justConcatenate=TRUE for V59
 
@@ -164,7 +170,7 @@ seqtab <- makeSequenceTable(mergers)
 # summarize the output by length
 table(nchar(getSequences(seqtab)))
 
-# remove chimeras and save in seqtab.nochim - SLOW!!!!
+message ("#remove chimeras and save in seqtab.nochim - SLOW!!!!")
 #The new default "method=consensus" doesn't work - look into this
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="pooled", verbose=TRUE, multithread=TRUE)
 
@@ -177,6 +183,7 @@ write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA,
 #-------------------------------------------------------
 # Sanity check
 #-------------------------------------------------------
+message ("#sanity check - how many reads made it")
 # Check how many reads made it through the pipeline
 # This is good to report in your methods/results
 getN <- function(x) sum(getUniques(x))
@@ -188,6 +195,7 @@ write.table(track, file="track.txt", sep="\t", col.names=NA, quote=F)
 #-------------------------------------------------------
 # Assign taxonomy
 #-------------------------------------------------------
+message ("#assigning approximated taxonomy")
 # NOTE: This is an APPROXIMATE taxonomy and may not be the best method for your data
 # There are many ways/databases to assign taxonomy, we are only using one.
 
