@@ -54,20 +54,16 @@ sample.names <- sapply(strsplit(basename(fnFs), "-"), `[`, 1)
 #-------------------------------------------------------
 # Check read quality
 #-------------------------------------------------------
-# check a random set of samples
-# Should change this to check other reads
+# check a random set of samples (samples 1, 10, and 20...feel free to change this and inspect other samples)
 pdf("qualprofiles.pdf")
-plotQualityProfile(fnFs[[1]])
-plotQualityProfile(fnRs[[1]])
-plotQualityProfile(fnFs[[10]])
-plotQualityProfile(fnRs[[10]])
-plotQualityProfile(fnFs[[20]])
-plotQualityProfile(fnRs[[20]])
+plotQualityProfile(fnFs[c(1,10,20)])
+plotQualityProfile(fnRs[c(1,10,20)])
 dev.off()
 
 #-------------------------------------------------------
 # Filter reads based on QC
 #-------------------------------------------------------
+message ("#Filtering reads based on QC")
 # Make filenames for the filtered fastq files
 filtFs <- paste0(reads, "/", sample.names, "-F-filt.fastq.gz")
 filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
@@ -78,9 +74,11 @@ filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
 # DO NOT trim from the 5' end since primers and barcodes already trimmed off
 out<-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
 			truncLen=c(220,175),
+#			truncQ=2,
             maxN=0,
             maxEE=c(2,2),
         	compress=TRUE, verbose=TRUE, multithread=TRUE)
+
 write.table(out, file="readsout.txt", sep="\t", col.names=NA, quote=F)
 
 #example parameters. For paired reads, used a vector (2,2)
@@ -116,17 +114,15 @@ write.table(out, file="readsout.txt", sep="\t", col.names=NA, quote=F)
 #-------------------------------------------------------
 # Learn the error rates - SLOW !!
 #-------------------------------------------------------
+message ("#Learning error rates - SLOW !!")
 errF <- learnErrors(filtFs, multithread=TRUE, randomize=TRUE)
 errR <- learnErrors(filtRs, multithread=TRUE, randomize=TRUE)
 #	randomize=TRUE #don't pick the first 1mil for the model, pick a random set
 
 #Plot the error rats and CHECK THE FIT
 # Do not proceed without a good fit
-pdf("errF.pdf")
+pdf("err.pdf")
 plotErrors(errF, nominalQ=TRUE)
-dev.off()
-
-pdf("errR.pdf")
 plotErrors(errR, nominalQ=TRUE)
 dev.off()
 
@@ -135,6 +131,8 @@ save.image("dada2_1.RData") #Insurance in case your script dies. Delete this lat
 #-------------------------------------------------------
 # Dereplication
 #-------------------------------------------------------
+message ("#Dereplicating the reads")
+
 # Dereplication combines all identical sequencing reads into into “unique sequences” with a corresponding “abundance”: the number of reads with that unique sequence
 # Dereplication substantially reduces computation time by eliminating redundant comparisons.
 
@@ -149,12 +147,14 @@ save.image("dada2_2.RData")  #Insurance in case your script dies. Delete this la
 #-------------------------------------------------------
 # Sample inference, merge paired reads, remove chimeras
 #-------------------------------------------------------
+message ("#Inferring the sequence variants in each sample - SLOW!!")
 #Infer the sequence variants in each sample - SLOW!!
 
 dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
 dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
 
 # overlap the ends of the forward and reverse reads
+message ("#merging the Fwd and Rev reads")
 mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
 #, justConcatenate=TRUE for V59
 
@@ -164,7 +164,7 @@ seqtab <- makeSequenceTable(mergers)
 # summarize the output by length
 table(nchar(getSequences(seqtab)))
 
-# remove chimeras and save in seqtab.nochim - SLOW!!!!
+message ("#remove chimeras and save in seqtab.nochim - SLOW!!!!")
 #The new default "method=consensus" doesn't work - look into this
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="pooled", verbose=TRUE, multithread=TRUE)
 
@@ -177,6 +177,7 @@ write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA,
 #-------------------------------------------------------
 # Sanity check
 #-------------------------------------------------------
+message ("#sanity check - how many reads made it")
 # Check how many reads made it through the pipeline
 # This is good to report in your methods/results
 getN <- function(x) sum(getUniques(x))
@@ -188,6 +189,7 @@ write.table(track, file="track.txt", sep="\t", col.names=NA, quote=F)
 #-------------------------------------------------------
 # Assign taxonomy
 #-------------------------------------------------------
+message ("#assigning approximated taxonomy")
 # NOTE: This is an APPROXIMATE taxonomy and may not be the best method for your data
 # There are many ways/databases to assign taxonomy, we are only using one.
 
@@ -208,11 +210,11 @@ t.seqtab.nochim.tax<-t(seqtab.nochim.tax)
 #remove the rownames (ASU sequences) to a separate table and replace with arbitrary ASU numbers
 # NOTE: in this case that ASUs are not the traditional "97% identical" sequence units since dada2 only collapses at 100%
 otu.seqs<-rownames(t.seqtab.nochim.tax)
-otu.num<-paste("ASU", seq(from = 0, to = nrow(t.seqtab.nochim.tax)-1), sep="_")
+otu.num<-paste("SV", seq(from = 0, to = nrow(t.seqtab.nochim.tax)-1), sep="_")
 
 rownames(t.seqtab.nochim.tax)<-otu.num
 
 #get the tables!
 # These are what you will use for all your downtream analysis
 write.table(t.seqtab.nochim.tax, file="dada2_nochim_tax.txt", sep="\t", col.names=NA, quote=F)
-write.table(otu.seqs, file="asu_seqs.txt", sep="\t", row.names=otu.num, col.names=F,  quote=F)
+write.table(otu.seqs, file="sv_seqs.txt", sep="\t", row.names=otu.num, col.names=F,  quote=F)
