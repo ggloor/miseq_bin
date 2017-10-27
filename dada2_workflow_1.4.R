@@ -54,15 +54,10 @@ sample.names <- sapply(strsplit(basename(fnFs), "-"), `[`, 1)
 #-------------------------------------------------------
 # Check read quality
 #-------------------------------------------------------
-# check a random set of samples
-# Should change this to check other reads
+# check a random set of samples (samples 1, 10, and 20...feel free to change this and inspect other samples)
 pdf("qualprofiles.pdf")
-plotQualityProfile(fnFs[[1]])
-plotQualityProfile(fnRs[[1]])
-plotQualityProfile(fnFs[[10]])
-plotQualityProfile(fnRs[[10]])
-plotQualityProfile(fnFs[[20]])
-plotQualityProfile(fnRs[[20]])
+plotQualityProfile(fnFs[c(1,10,20)])
+plotQualityProfile(fnRs[c(1,10,20)])
 dev.off()
 
 #-------------------------------------------------------
@@ -79,9 +74,11 @@ filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
 # DO NOT trim from the 5' end since primers and barcodes already trimmed off
 out<-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
 			truncLen=c(220,175),
+#			truncQ=2,
             maxN=0,
             maxEE=c(2,2),
         	compress=TRUE, verbose=TRUE, multithread=TRUE)
+
 write.table(out, file="readsout.txt", sep="\t", col.names=NA, quote=F)
 
 #example parameters. For paired reads, used a vector (2,2)
@@ -124,11 +121,8 @@ errR <- learnErrors(filtRs, multithread=TRUE, randomize=TRUE)
 
 #Plot the error rats and CHECK THE FIT
 # Do not proceed without a good fit
-pdf("errF.pdf")
+pdf("err.pdf")
 plotErrors(errF, nominalQ=TRUE)
-dev.off()
-
-pdf("errR.pdf")
 plotErrors(errR, nominalQ=TRUE)
 dev.off()
 
@@ -216,11 +210,11 @@ t.seqtab.nochim.tax<-t(seqtab.nochim.tax)
 #remove the rownames (ASU sequences) to a separate table and replace with arbitrary ASU numbers
 # NOTE: in this case that ASUs are not the traditional "97% identical" sequence units since dada2 only collapses at 100%
 otu.seqs<-rownames(t.seqtab.nochim.tax)
-otu.num<-paste("ASU", seq(from = 0, to = nrow(t.seqtab.nochim.tax)-1), sep="_")
+otu.num<-paste("SV", seq(from = 0, to = nrow(t.seqtab.nochim.tax)-1), sep="_")
 
 rownames(t.seqtab.nochim.tax)<-otu.num
 
 #get the tables!
 # These are what you will use for all your downtream analysis
 write.table(t.seqtab.nochim.tax, file="dada2_nochim_tax.txt", sep="\t", col.names=NA, quote=F)
-write.table(otu.seqs, file="asu_seqs.txt", sep="\t", row.names=otu.num, col.names=F,  quote=F)
+write.table(otu.seqs, file="sv_seqs.txt", sep="\t", row.names=otu.num, col.names=F,  quote=F)
