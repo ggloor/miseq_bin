@@ -27,7 +27,7 @@ if ( defined $ARGV[3]){
 }
 my %samples;
 my $bclen = 12; #Golay are 12-mers
-$bclen=  = 8 if $ARGV[3] eq "MCHII_SOSP";
+$bclen = 8 if $ARGV[3] eq "MCHII_SOSP";
 
 my $group ="reads";
 
