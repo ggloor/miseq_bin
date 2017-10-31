@@ -54,16 +54,18 @@ sample.names <- sapply(strsplit(basename(fnFs), "-"), `[`, 1)
 #-------------------------------------------------------
 # Check read quality
 #-------------------------------------------------------
-# check a random set of samples (samples 1, 10, and 20...feel free to change this and inspect other samples)
+#This will pick a random subset of 4 samples to look at read quality
+ids<-round(runif(4,1,length(sample.names)))
+
 pdf("qualprofiles.pdf")
-plotQualityProfile(fnFs[c(1,10,20)])
-plotQualityProfile(fnRs[c(1,10,20)])
+plotQualityProfile(fnFs[ids])
+plotQualityProfile(fnRs[ids])
 dev.off()
 
 #-------------------------------------------------------
 # Filter reads based on QC
 #-------------------------------------------------------
-message ("#Filtering reads based on QC")
+message ("#		Filtering reads based on QC")
 # Make filenames for the filtered fastq files
 filtFs <- paste0(reads, "/", sample.names, "-F-filt.fastq.gz")
 filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
@@ -74,7 +76,7 @@ filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
 # DO NOT trim from the 5' end since primers and barcodes already trimmed off
 out<-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
 			truncLen=c(220,175),
-#			truncQ=2,
+			truncQ=2,
             maxN=0,
             maxEE=c(2,2),
         	compress=TRUE, verbose=TRUE, multithread=TRUE)
@@ -92,29 +94,10 @@ write.table(out, file="readsout.txt", sep="\t", col.names=NA, quote=F)
 
 # filtered reads are output to demultiplex_reads
 
-#----------------------------------------------------------------
-# IF YOUR PROGRAM CRASHES YOU CAN USE THIS AS A CONTINUE POINT
-# SKIP THIS otherwise and go straight to the next step
-# as long as your filtered reads were output
-# Use the commands below to lead the data, then go to the dereplication step
-#---------------------------------------------------------------------------
-###Load needed libraries and paths
-#library(dada2)
-
-#taxpath<-"/Volumes/longlunch/seq/annotationDB/dada2silva_nr_v123_train_set.fa.gz"
-#reads<-"demultiplex_reads"
-
-##get the filenames with relative path
-##sort to ensure same order
-#filtFs <- sort(list.files(reads, pattern="-F-filt.fastq.gz", full.names=TRUE))
-#filtRs <- sort(list.files(reads, pattern="-R-filt.fastq.gz", full.names=TRUE))
-##get sample names only (remove path, and everything after the first "-")
-#sample.names <- sapply(strsplit(basename(filtFs), "-"), `[`, 1)
-#-------------------------------------------------------
 #-------------------------------------------------------
 # Learn the error rates - SLOW !!
 #-------------------------------------------------------
-message ("#Learning error rates - SLOW !!")
+message ("#		Learning error rates - SLOW !!")
 errF <- learnErrors(filtFs, multithread=TRUE, randomize=TRUE)
 errR <- learnErrors(filtRs, multithread=TRUE, randomize=TRUE)
 #	randomize=TRUE #don't pick the first 1mil for the model, pick a random set
@@ -131,7 +114,7 @@ save.image("dada2_1.RData") #Insurance in case your script dies. Delete this lat
 #-------------------------------------------------------
 # Dereplication
 #-------------------------------------------------------
-message ("#Dereplicating the reads")
+message ("#		Dereplicating the reads")
 
 # Dereplication combines all identical sequencing reads into into “unique sequences” with a corresponding “abundance”: the number of reads with that unique sequence
 # Dereplication substantially reduces computation time by eliminating redundant comparisons.
@@ -147,14 +130,14 @@ save.image("dada2_2.RData")  #Insurance in case your script dies. Delete this la
 #-------------------------------------------------------
 # Sample inference, merge paired reads, remove chimeras
 #-------------------------------------------------------
-message ("#Inferring the sequence variants in each sample - SLOW!!")
+message ("#		Inferring the sequence variants in each sample - SLOW!!")
 #Infer the sequence variants in each sample - SLOW!!
 
 dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
 dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
 
 # overlap the ends of the forward and reverse reads
-message ("#merging the Fwd and Rev reads")
+message ("#		merging the Fwd and Rev reads")
 mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
 #, justConcatenate=TRUE for V59
 
@@ -164,9 +147,10 @@ seqtab <- makeSequenceTable(mergers)
 # summarize the output by length
 table(nchar(getSequences(seqtab)))
 
-message ("#remove chimeras and save in seqtab.nochim - SLOW!!!!")
+message ("#		remove chimeras and save in seqtab.nochim - SLOW!!!!")
 #The new default "method=consensus" doesn't work - look into this
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="pooled", verbose=TRUE, multithread=TRUE)
+dim(seqtab.nochim)
 
 #let's write the table, just in case
 #samples are rows
@@ -177,7 +161,7 @@ write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA,
 #-------------------------------------------------------
 # Sanity check
 #-------------------------------------------------------
-message ("#sanity check - how many reads made it")
+message ("#		sanity check - how many reads made it")
 # Check how many reads made it through the pipeline
 # This is good to report in your methods/results
 getN <- function(x) sum(getUniques(x))
@@ -189,7 +173,7 @@ write.table(track, file="track.txt", sep="\t", col.names=NA, quote=F)
 #-------------------------------------------------------
 # Assign taxonomy
 #-------------------------------------------------------
-message ("#assigning approximated taxonomy")
+message ("#		assigning approximated taxonomy")
 # NOTE: This is an APPROXIMATE taxonomy and may not be the best method for your data
 # There are many ways/databases to assign taxonomy, we are only using one.
 
@@ -207,14 +191,14 @@ seqtab.nochim.tax<-rbind(seqtab.nochim, tax.vector)
 #transpose the table so samples are columns
 t.seqtab.nochim.tax<-t(seqtab.nochim.tax)
 
-#remove the rownames (ASU sequences) to a separate table and replace with arbitrary ASU numbers
-# NOTE: in this case that ASUs are not the traditional "97% identical" sequence units since dada2 only collapses at 100%
-otu.seqs<-rownames(t.seqtab.nochim.tax)
-otu.num<-paste("SV", seq(from = 0, to = nrow(t.seqtab.nochim.tax)-1), sep="_")
+#remove the rownames (SV sequences) to a separate table and replace with arbitrary SV (sequence variants) numbers
+# NOTE: in this case that SVs are not the traditional "97% identical" sequence units (OTUs) since dada2 only collapses at 100%
+sv.seqs<-rownames(t.seqtab.nochim.tax)
+sv.num<-paste("SV", seq(from = 0, to = nrow(t.seqtab.nochim.tax)-1), sep="_")
 
-rownames(t.seqtab.nochim.tax)<-otu.num
+rownames(t.seqtab.nochim.tax)<-sv.num
 
 #get the tables!
 # These are what you will use for all your downtream analysis
 write.table(t.seqtab.nochim.tax, file="dada2_nochim_tax.txt", sep="\t", col.names=NA, quote=F)
-write.table(otu.seqs, file="sv_seqs.txt", sep="\t", row.names=otu.num, col.names=F,  quote=F)
+write.table(sv.seqs, file="sv_seqs.txt", sep="\t", row.names=sv.num, col.names=F,  quote=F)
