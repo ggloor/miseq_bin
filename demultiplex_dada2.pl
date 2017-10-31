@@ -19,7 +19,7 @@ my @rprimerlen = (20, 31, 18, 17);
 
 my  $primer = 1;
 if ( defined $ARGV[3]){
-	$primer = 2 if $ARGV[3] eq "MCHII_SOSP";
+	$primer = 3 if $ARGV[3] eq "MCHII_SOSP";
 	$primer = 2 if $ARGV[3] eq "V6";
 	$primer = 0 if $ARGV[3] eq "ITS6";
 	$primer = 1 if $ARGV[3] eq "Kcnq1ot1";
