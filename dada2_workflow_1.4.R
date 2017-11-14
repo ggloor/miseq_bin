@@ -41,15 +41,9 @@ fnRs <- sort(list.files(reads, pattern="-R2.fastq", full.names=TRUE))
 # Assuming filenames have format: SAMPLENAME-XXX.fastq
 sample.names <- sapply(strsplit(basename(fnFs), "-"), `[`, 1)
 
-### Old method
-# Sort ensures forward/reverse reads are in same order
-#fnFs1 <- sort(list.files(reads, pattern="-R1.fastq"))
-#fnRs2 <- sort(list.files(reads, pattern="-R2.fastq"))
-# Extract sample names, assuming filenames have format: SAMPLENAME-XXX.fastq
-#sample.names <- sapply(strsplit(fnFs1, "-"), `[`, 1)
-# Specify the full path to the fnFs and fnRs
-#fnFs <- file.path(reads, fnFs1)
-#fnRs <- file.path(reads, fnRs2)
+#check for duplicated sample names before you move on
+any(duplicated(names))
+# STOP if this is TRUE and check: sample.names[duplicated(sample.names)]
 
 #-------------------------------------------------------
 # Check read quality
@@ -81,7 +75,7 @@ out<-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
             maxEE=c(2,2),
         	compress=TRUE, verbose=TRUE, multithread=TRUE)
 
-write.table(out, file="readsout.txt", sep="\t", col.names=NA, quote=F)
+write.table(out, file="after_filter.txt", sep="\t", col.names=NA, quote=F)
 
 #example parameters. For paired reads, used a vector (2,2)
 	#truncQ=2, #truncate reads after a quality score of 2 or less
@@ -102,14 +96,14 @@ errF <- learnErrors(filtFs, multithread=TRUE, randomize=TRUE)
 errR <- learnErrors(filtRs, multithread=TRUE, randomize=TRUE)
 #	randomize=TRUE #don't pick the first 1mil for the model, pick a random set
 
-#Plot the error rats and CHECK THE FIT
+#Plot the error rates and CHECK THE FIT
 # Do not proceed without a good fit
 pdf("err.pdf")
 plotErrors(errF, nominalQ=TRUE)
 plotErrors(errR, nominalQ=TRUE)
 dev.off()
 
-save.image("dada2_1.RData") #Insurance in case your script dies. Delete this later
+save.image("dada2.RData") #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Dereplication
@@ -125,7 +119,7 @@ derepRs <- derepFastq(filtRs, verbose=TRUE)
 names(derepFs) <- sample.names
 names(derepRs) <- sample.names
 
-save.image("dada2_2.RData")  #Insurance in case your script dies. Delete this later
+save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Sample inference, merge paired reads, remove chimeras
@@ -156,7 +150,7 @@ dim(seqtab.nochim)
 #samples are rows
 write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
 # Or save the Rsession save.image("dada2.RData")
-#save.image("dada2_3.RData")  #Insurance in case your script dies. Delete this later
+#save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Sanity check
@@ -168,7 +162,7 @@ getN <- function(x) sum(getUniques(x))
 track <- cbind(out, sapply(dadaFs, getN), sapply(mergers, getN), rowSums(seqtab), rowSums(seqtab.nochim))
 colnames(track) <- c("input", "filtered", "denoised", "merged", "tabled", "nonchim")
 rownames(track) <- sample.names
-write.table(track, file="track.txt", sep="\t", col.names=NA, quote=F)
+write.table(track, file="readsout.txt", sep="\t", col.names=NA, quote=F)
 
 #-------------------------------------------------------
 # Assign taxonomy
