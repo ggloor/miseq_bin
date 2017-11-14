@@ -25,8 +25,8 @@ if (!$ARGV[0]){
 	print "samples.txt, forward.fastq, reverse.fastq, primer.name, barcode.length\n";
 	exit;
 }
-my @lprimerlen = (19, 20, 19);
-my @rprimerlen = (20, 31, 18);
+my @lprimerlen = (19, 20, 19,16);
+my @rprimerlen = (20, 31, 18,20);
 my $bclen = 8;
 $bclen = $ARGV[4] if $ARGV[4];
 
@@ -36,9 +36,9 @@ if ( defined $ARGV[3]){
 	$primer = 0 if $ARGV[3] eq "ITS6";
 	$primer = 1 if $ARGV[3] eq "Kcnq1ot1";
 	$primer = 1 if $ARGV[3] eq "V4EMB";
-	$primer = 3 if $ARGV[3] eq "MCHII_SOSP";
-	$primer = 4 if $ARGV[3] eq "SLADE_cDNA";
-	$primer = 5 if $ARGV[3] eq "ITS34";
+	$primer = 3 if $ARGV[3] eq "ThornA";
+	$primer = 0 if $ARGV[3] eq "Thorn";
+	$primer = 0 if $ARGV[3] eq "ThornB";
 }
 my %samples;
 
