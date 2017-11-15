@@ -1,7 +1,7 @@
 #!/usr/bin/env perl -w
 use strict;
 #######
-# This software is Copyright 2013 Greg Gloor and is distributed under the 
+# This software is Copyright 2013 Greg Gloor and is distributed under the
 #    terms of the GNU General Public License.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -38,8 +38,9 @@ open (IN, "< $ARGV[0]") or die;
 		chomp $l;
 		my @l = split/\t/, $l;
 		my @ll = split/\|/, $l[0]; #get the OTU and ISU numbers
-		
+
 		#left tag at position 1, right tag at position 5
+		# if the sequence has nd at the osu position, it is a flagged chimera by usearch
 		if ($ll[2] =~ /\d+/ && $ll[4] =~ /\d+/){
 		$ISUmax = $ll[2] if $ll[2] > $ISUmax;
 		#print "$ISUmax " if $ll[4] == $ISUmax;#find the largest OTU and ISU id numbers
@@ -85,7 +86,7 @@ sub get_otu_info{
 		$OTU_data .= "\tOTU_$i" if exists $validOTU{$i};
 	}
 	$OTU_data .= "\trem\n";
-	
+
 	#now print out the groups
 	foreach(@k){
 		$OTU_data .= "$_\t$OTUtagtotal{$_}";
@@ -126,7 +127,7 @@ sub get_isu_info{
 		$ISU_data .= "\tISU_$i" if exists $validISU{$i};
 	}
 	$ISU_data .= "\trem\n";
-	
+
 	#now print out the groups
 	foreach(@k){
 		$ISU_data .= "$_\t$ISUtagtotal{$_}";
