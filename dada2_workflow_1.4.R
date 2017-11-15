@@ -151,9 +151,9 @@ dim(seqtab.nochim)
 
 #let's write the table, just in case
 #samples are rows
-write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
+#write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
 # Or save the Rsession save.image("dada2.RData")
-#save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
+save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Sanity check
