@@ -50,6 +50,7 @@ any(duplicated(sample.names))
 # Check read quality
 #-------------------------------------------------------
 #This will pick a random subset of 4 samples to look at read quality
+#note: you can also plot an aggregate of all fastqs instead using aggregate=TRUE
 ids<-round(runif(4,1,length(sample.names)))
 
 pdf("qualprofiles.pdf")
@@ -57,10 +58,13 @@ plotQualityProfile(fnFs[ids])
 plotQualityProfile(fnRs[ids])
 dev.off()
 
+# The distribution of quality scores at each position is shown as a grey-scale heat map, with dark colors corresponding to higher frequency. The plotted lines show positional summary statistics: green is the mean, orange is the median, and the dashed orange lines are the 25th and 75th quantiles.
+
 #-------------------------------------------------------
 # Filter reads based on QC
 #-------------------------------------------------------
 message ("###### Filtering reads based on QC")
+
 # Make filenames for the filtered fastq files
 filtFs <- paste0(reads, "/", sample.names, "-F-filt.fastq.gz")
 filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
@@ -80,7 +84,7 @@ out<-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
 
 write.table(out, file="after_filter.txt", sep="\t", col.names=NA, quote=F)
 
-#example parameters. For paired reads, used a vector (2,2)
+#example parameters. For paired reads, use a vector (2,2)
 	#truncQ=2, #truncate reads after a quality score of 2 or less
 	#truncLen=130, #truncate after 130 bases
 	#trimLeft=10, #remove 10 bases off the 5’ end of the sequence
@@ -95,6 +99,7 @@ write.table(out, file="after_filter.txt", sep="\t", col.names=NA, quote=F)
 # Learn the error rates - SLOW !!
 #-------------------------------------------------------
 message ("###### Learning error rates - SLOW !!")
+
 errF <- learnErrors(filtFs, multithread=TRUE, randomize=TRUE)
 errR <- learnErrors(filtRs, multithread=TRUE, randomize=TRUE)
 #	randomize=TRUE #don't pick the first 1mil for the model, pick a random set
@@ -130,7 +135,6 @@ save.image("dada2.RData")  #Insurance in case your script dies. Delete this late
 # Sample inference, merge paired reads, remove chimeras
 #-------------------------------------------------------
 message ("###### Inferring the sequence variants in each sample - SLOW!!")
-#Infer the sequence variants in each sample - SLOW!!
 
 dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
 dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
@@ -143,12 +147,13 @@ mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
 # make the sequence table, samples are by rows
 seqtab <- makeSequenceTable(mergers)
 
-# summarize the output by length
+message ("###### summarize the output by sequence length")
 table(nchar(getSequences(seqtab)))
 
 message ("###### remove chimeras and save in seqtab.nochim - SLOW!!!!")
 #The new default "method=consensus" doesn't work - look into this
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="pooled", verbose=TRUE, multithread=TRUE)
+message ("###### output table dimensions")
 dim(seqtab.nochim)
 
 #let's write the table, just in case
@@ -161,7 +166,7 @@ save.image("dada2.RData")  #Insurance in case your script dies. Delete this late
 #-------------------------------------------------------
 # Sanity check
 #-------------------------------------------------------
-message ("###### sanity check - how many reads made it")
+message ("###### sanity check - how many reads made it: readsout.txt")
 # Check how many reads made it through the pipeline
 # This is good to report in your methods/results
 getN <- function(x) sum(getUniques(x))
