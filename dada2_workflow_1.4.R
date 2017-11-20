@@ -13,8 +13,8 @@
 #-------------------------------------------------------
 # 1) Demultiplex your samples (assign each read to a sample based on the barcode) using demultiplex_dada2.pl
 # 2) Start R
-#		OR...SOURCE THIS SCRIPT WITH
-#		nohup Rscript dada2_workflow.R &
+###### OR...SOURCE THIS SCRIPT WITH
+###### nohup Rscript dada2_workflow.R &
 #-------------------------------------------------------
 # Setup
 #-------------------------------------------------------
@@ -42,13 +42,15 @@ fnRs <- sort(list.files(reads, pattern="-R2.fastq", full.names=TRUE))
 sample.names <- sapply(strsplit(basename(fnFs), "-"), `[`, 1)
 
 #check for duplicated sample names before you move on
-any(duplicated(names))
+message ("###### checking for duplicated sample names")
+any(duplicated(sample.names))
 # STOP if this is TRUE and check: sample.names[duplicated(sample.names)]
 
 #-------------------------------------------------------
 # Check read quality
 #-------------------------------------------------------
 #This will pick a random subset of 4 samples to look at read quality
+#note: you can also plot an aggregate of all fastqs instead using aggregate=TRUE
 ids<-round(runif(4,1,length(sample.names)))
 
 pdf("qualprofiles.pdf")
@@ -56,20 +58,25 @@ plotQualityProfile(fnFs[ids])
 plotQualityProfile(fnRs[ids])
 dev.off()
 
+# The distribution of quality scores at each position is shown as a grey-scale heat map, with dark colors corresponding to higher frequency. The plotted lines show positional summary statistics: green is the mean, orange is the median, and the dashed orange lines are the 25th and 75th quantiles.
+
 #-------------------------------------------------------
 # Filter reads based on QC
 #-------------------------------------------------------
-message ("#		Filtering reads based on QC")
+message ("###### Filtering reads based on QC")
+
 # Make filenames for the filtered fastq files
 filtFs <- paste0(reads, "/", sample.names, "-F-filt.fastq.gz")
 filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
 
-# the length must be equal to or shorter than the read!!
-# that means 187 and 178 for V4 with paired 2x220 with 8 mer barcodes
-# that means 183 and 174 for V4 with paired 2x220 with 12 mer barcodes
-# DO NOT trim from the 5' end since primers and barcodes already trimmed off
+# YOU NEED TO SET THE PARAMETERS HERE. Trim based on the quality score profiles you generated from tour reads
+#	the length must be equal to or shorter than the read!!
+#	that means 187 and 178 for V4 with paired 2x220 with 8 mer barcodes
+#	that means 183 and 174 for V4 with paired 2x220 with 12 mer barcodes
+#	DO NOT trim from the 5' end since primers and barcodes already trimmed off
+
 out<-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
-			truncLen=c(220,175),
+			truncLen=c(183,174),		#this is minimum. You probably want to adjust
 			truncQ=2,
             maxN=0,
             maxEE=c(2,2),
@@ -77,7 +84,7 @@ out<-filterAndTrim(fnFs, filtFs, fnRs, filtRs,
 
 write.table(out, file="after_filter.txt", sep="\t", col.names=NA, quote=F)
 
-#example parameters. For paired reads, used a vector (2,2)
+#example parameters. For paired reads, use a vector (2,2)
 	#truncQ=2, #truncate reads after a quality score of 2 or less
 	#truncLen=130, #truncate after 130 bases
 	#trimLeft=10, #remove 10 bases off the 5’ end of the sequence
@@ -91,7 +98,8 @@ write.table(out, file="after_filter.txt", sep="\t", col.names=NA, quote=F)
 #-------------------------------------------------------
 # Learn the error rates - SLOW !!
 #-------------------------------------------------------
-message ("#		Learning error rates - SLOW !!")
+message ("###### Learning error rates - SLOW !!")
+
 errF <- learnErrors(filtFs, multithread=TRUE, randomize=TRUE)
 errR <- learnErrors(filtRs, multithread=TRUE, randomize=TRUE)
 #	randomize=TRUE #don't pick the first 1mil for the model, pick a random set
@@ -103,12 +111,13 @@ plotErrors(errF, nominalQ=TRUE)
 plotErrors(errR, nominalQ=TRUE)
 dev.off()
 
+message ("###### Saving your R session...")
 save.image("dada2.RData") #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Dereplication
 #-------------------------------------------------------
-message ("#		Dereplicating the reads")
+message ("###### Dereplicating the reads")
 
 # Dereplication combines all identical sequencing reads into into “unique sequences” with a corresponding “abundance”: the number of reads with that unique sequence
 # Dereplication substantially reduces computation time by eliminating redundant comparisons.
@@ -119,43 +128,45 @@ derepRs <- derepFastq(filtRs, verbose=TRUE)
 names(derepFs) <- sample.names
 names(derepRs) <- sample.names
 
+message ("###### Saving your R session...")
 save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Sample inference, merge paired reads, remove chimeras
 #-------------------------------------------------------
-message ("#		Inferring the sequence variants in each sample - SLOW!!")
-#Infer the sequence variants in each sample - SLOW!!
+message ("###### Inferring the sequence variants in each sample - SLOW!!")
 
 dadaFs <- dada(derepFs, err=errF, multithread=TRUE)
 dadaRs <- dada(derepRs, err=errR, multithread=TRUE)
 
 # overlap the ends of the forward and reverse reads
-message ("#		merging the Fwd and Rev reads")
+message ("###### merging the Fwd and Rev reads")
 mergers <- mergePairs(dadaFs, derepFs, dadaRs, derepRs, verbose=TRUE)
 #, justConcatenate=TRUE for V59
 
 # make the sequence table, samples are by rows
 seqtab <- makeSequenceTable(mergers)
 
-# summarize the output by length
+message ("###### summarize the output by sequence length")
 table(nchar(getSequences(seqtab)))
 
-message ("#		remove chimeras and save in seqtab.nochim - SLOW!!!!")
+message ("###### remove chimeras and save in seqtab.nochim - SLOW!!!!")
 #The new default "method=consensus" doesn't work - look into this
 seqtab.nochim <- removeBimeraDenovo(seqtab, method="pooled", verbose=TRUE, multithread=TRUE)
+message ("###### output table dimensions")
 dim(seqtab.nochim)
 
 #let's write the table, just in case
 #samples are rows
-write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
+#write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
 # Or save the Rsession save.image("dada2.RData")
-#save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
+message ("###### Saving your R session...")
+save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Sanity check
 #-------------------------------------------------------
-message ("#		sanity check - how many reads made it")
+message ("###### sanity check - how many reads made it: readsout.txt")
 # Check how many reads made it through the pipeline
 # This is good to report in your methods/results
 getN <- function(x) sum(getUniques(x))
@@ -167,7 +178,7 @@ write.table(track, file="readsout.txt", sep="\t", col.names=NA, quote=F)
 #-------------------------------------------------------
 # Assign taxonomy
 #-------------------------------------------------------
-message ("#		assigning approximated taxonomy")
+message ("###### assigning approximated taxonomy")
 # NOTE: This is an APPROXIMATE taxonomy and may not be the best method for your data
 # There are many ways/databases to assign taxonomy, we are only using one.
 
@@ -196,3 +207,6 @@ rownames(t.seqtab.nochim.tax)<-sv.num
 # These are what you will use for all your downtream analysis
 write.table(t.seqtab.nochim.tax, file="dada2_nochim_tax.txt", sep="\t", col.names=NA, quote=F)
 write.table(sv.seqs, file="sv_seqs.txt", sep="\t", row.names=sv.num, col.names=F,  quote=F)
+
+message ("###### Saving your R session...")
+save.image("dada2.RData") #Insurance in case your script dies. Delete this later
