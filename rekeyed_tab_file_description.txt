@@ -1,0 +1,13 @@
+#rekeyed_tab_file.txt
+- Each line starting with "@" is an overlapped read (overlapped with pandaseq v.___ parameters:___)
+- Separated by tab (tab-delimited) in order are
+	- The read name (Illumina output)
+	- sample name the read belongs to (see samples.txt for all samples)
+	- left primer sequence
+	- the overlapped read (nt)
+	- right primer sequence
+	- the L-R tag pair used to demultiplex the sample (See samples.txt for lookup table)
+	- the quality scores corresponding to the overlapped read (Illumina Phred 30)
+- Reads were only kept for a sample if the barcode sequence matched perfectly (#maybe? Depends which version of the pipeline was used...)
+
+
