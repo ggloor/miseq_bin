@@ -21,7 +21,7 @@ The file to download will be several Gb. Download to your machine and copy to cj
 ### Setup your working directory
  All projects on cjelli are located on `/Volumes/longlunch/seq/LRGC/YourUserName`
 
- ***BEFORE YOU PUT YOUT DATA ON cjelli PLEASE COMPLETE A PROJECT SUBMISSION FORM HERE: https://goo.gl/forms/sEx56VUquA8Ohi482 If you do not have a project form, your data will be removed. ***
+ ***BEFORE YOU PUT YOUT DATA ON cjelli PLEASE COMPLETE A PROJECT SUBMISSION FORM [HERE](https://goo.gl/forms/sEx56VUquA8Ohi482): If you do not have a project form, your data will be removed. ***
 
 1. Make a directory for your current study/run (usually named by your study name) - **THIS IS YOUR WORKING DIRECTORY**
   - Example working directory: `/Volumes/longlunch/seq/LRGC/jean/study1`
