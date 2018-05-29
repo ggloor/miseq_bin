@@ -111,8 +111,8 @@ plotErrors(errF, nominalQ=TRUE)
 plotErrors(errR, nominalQ=TRUE)
 dev.off()
 
-message ("###### Saving your R session...")
-save.image("dada2.RData") #Insurance in case your script dies. Delete this later
+#message ("###### Saving your R session...")
+#save.image("dada2.RData") #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Dereplication
@@ -128,8 +128,8 @@ derepRs <- derepFastq(filtRs, verbose=TRUE)
 names(derepFs) <- sample.names
 names(derepRs) <- sample.names
 
-message ("###### Saving your R session...")
-save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
+#message ("###### Saving your R session...")
+#save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Sample inference, merge paired reads, remove chimeras
@@ -158,10 +158,10 @@ dim(seqtab.nochim)
 
 #let's write the table, just in case
 #samples are rows
-#write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
+write.table(seqtab.nochim, file="temp_dada2_nochim.txt", sep="\t", col.names=NA, quote=F)
 # Or save the Rsession save.image("dada2.RData")
-message ("###### Saving your R session...")
-save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
+#message ("###### Saving your R session...")
+#save.image("dada2.RData")  #Insurance in case your script dies. Delete this later
 
 #-------------------------------------------------------
 # Sanity check
@@ -208,5 +208,5 @@ rownames(t.seqtab.nochim.tax)<-sv.num
 write.table(t.seqtab.nochim.tax, file="dada2_nochim_tax.txt", sep="\t", col.names=NA, quote=F)
 write.table(sv.seqs, file="sv_seqs.txt", sep="\t", row.names=sv.num, col.names=F,  quote=F)
 
-message ("###### Saving your R session...")
-save.image("dada2.RData") #Insurance in case your script dies. Delete this later
+#message ("###### Saving your R session...")
+#save.image("dada2.RData") #Insurance in case your script dies. Delete this later
