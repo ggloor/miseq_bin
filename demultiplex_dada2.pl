@@ -100,8 +100,10 @@ close IN1; close IN2;
 my @bc = keys(%samples);
 system(`mkdir "demultiplex_$group"`);
 for(my $i = 0; $i < @bc; $i++){
-	my $fileL = $samples{$bc[$i]} . "-" . $bc[$i] . "-R1.fastq";
-	my $fileR = $samples{$bc[$i]} . "-" . $bc[$i] . "-R2.fastq";
+#	my $fileL = $samples{$bc[$i]} . "-" . $bc[$i] . "-R1.fastq";
+#	my $fileR = $samples{$bc[$i]} . "-" . $bc[$i] . "-R2.fastq";
+	my $fileL = $samples{$bc[$i]} . "-R1.fastq";
+	my $fileR = $samples{$bc[$i]} . "-R2.fastq";
 
 	open (OUT, "> demultiplex_$group/$fileL") or die "$fileL unwritable $!\n";
 		print OUT $outputL{$bc[$i]} if $outputL{$bc[$i]};
