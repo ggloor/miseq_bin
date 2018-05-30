@@ -39,7 +39,7 @@ fnFs <- sort(list.files(reads, pattern="-R1.fastq", full.names=TRUE))
 fnRs <- sort(list.files(reads, pattern="-R2.fastq", full.names=TRUE))
 # Get sample names only (remove path, and everything after the first "-")
 # Assuming filenames have format: SAMPLENAME-XXX.fastq
-sample.names <- sapply(strsplit(basename(fnFs), "-"), `[`, 1)
+sample.names <- sapply(strsplit(basename(fnFs), "-R"), `[`, 1)
 
 #check for duplicated sample names before you move on
 message ("###### checking for duplicated sample names")
@@ -69,7 +69,7 @@ message ("###### Filtering reads based on QC")
 filtFs <- paste0(reads, "/", sample.names, "-F-filt.fastq.gz")
 filtRs <- paste0(reads, "/", sample.names, "-R-filt.fastq.gz")
 
-# YOU NEED TO SET THE PARAMETERS HERE. Trim based on the quality score profiles you generated from tour reads
+# YOU NEED TO SET THE PARAMETERS HERE. Trim based on the quality score profiles you generated from your reads
 #	the length must be equal to or shorter than the read!!
 #	that means 187 and 178 for V4 with paired 2x220 with 8 mer barcodes
 #	that means 183 and 174 for V4 with paired 2x220 with 12 mer barcodes
