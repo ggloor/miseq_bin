@@ -1,0 +1,49 @@
+---
+title: "Standard methods section"
+author: "Greg Gloor"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+geometry: margin=2cm
+bibliography: /Users/ggloor/Library/texmf/bibtex/bib/bibdesk_refs.bib
+csl: /Users/ggloor/Documents/0_git/csl_styles/frontiers.csl
+output:
+    pdf_document:
+        keep_tex: false
+        fig_caption: true
+        toc: true
+        toc_depth: 2
+        includes:
+            in_header: /Users/ggloor/Documents/0_git/templates/header.tex
+        pandoc_args: [
+            "-V", "classoption=onecolumn"
+        ]
+---
+
+# Number of samples
+Best practices are to include both positive and negative controls for each sample batch. We recommend including 4 positive and 4 negative controls for DNA isolation per 96 well plate. These should be randomly distributed. Smaller numbers of samples require the same number of controls, they should not be reduced proportionately until the number of samples drops below 40 or so.
+
+We process samples in up to batches of 80 in 96 well plates. We need to leave at least 4 empty wells in the plates for the genome centre's use. So we run up to 88 samples + controls per plate
+
+# DNA isolation and amplification
+
+DNA was extracted from samples using bead beating and modified protocols from commercially available kits, as previously described [@McDonald:2015aa]. Briefly, 200  $\mu$L of each sample was added to 300 $\mu$L of SLX buffer (Omega Bio-Tek E.Z.N.A. Stool DNA kit\textregistered; Norcross, Georgia),  $\mu$L of 20 mg/mL proteinase K and 200 mg of glass beads, with bead-beating for 3 min. Samples were incubated at 70$^\circ$C for 10 min, 95$^\circ$C for 5 min and on ice for 2 min. The E.Z.N.A. protocol was followed to the inhibitor removal step, and DNA was extracted using Maxwell 16 DNA Purification Kit\textregistered;Promega: Madison, Wisconsin. All steps were  according to the Maxwell kit instructions.
+
+- NOTE: while this is the lab standard, note that the exact protocol should be substituted for the above.
+
+Primer sequences, barcodes used, and full protocols are  at:
+
+ `https://github.com/ggloor/miseq_bin/Illumina_SOP.pdf`.
+
+ In brief, one microliter of DNA sample (1-5 ng) was used for PCR amplification using the Earth Microbiome universal primers (named 515F, 806R) specific for the V4 variable region of the rRNA gene [@Caporaso:2012aa], modified using inline combinatorial barcodes [@Gloor:2010]. Amplification was carried out using Promega GoTaq hot start colorless master mix reagent (Promega: Madison, WI) for 25 cycles with an annealing temperature of 52°C. Inline barcodes, similar to those described in [@Gloor:2010] were used, with the modification that the barcodes were 8 nucleotides long and were preceded by 4 randomly synthesized nucleotides.
+
+# Library preparation and sequencing
+
+Post-PCR samples were mixed at equimolar amounts, and amplified for 10 cycles using Illumina adaptor specific primers as outlined in [@Gloor:2010]. Primers were removed using a PCR cleanup kit. Sequencing was carried out on the Illumina MiSeq platform at the London Regional Genomics Centre, with the 600 cycle v3 chemistry kit (Illumina, California).  Paired-end sequencing was carried out with a 2x250 cycle profile with 5% PhiX-174 spike in and an optimal cluster density of 1200. Data was exported as raw fastq files.
+
+# Data processing with dada2
+Samples are demultiplexed using the `demultiplex_dada2.pl` script in the `miseq.bin` directory. The sequence output table is generated using the `dada2` pipeline [@Callahan:2016aa]using the default methods and annotation against the most recent version of the `Silva` curated database [@Quast:2013aa]. This approach identifies sequences that are most likely to be in the underlying dataset but to exclude those that are likely to be derived from technical error.
+
+# Compositional analysis
+
+[@gloorFrontiers:2017].
+
+# References

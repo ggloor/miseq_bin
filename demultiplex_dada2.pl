@@ -14,11 +14,12 @@ use strict;
 # 2 reverse fastq
 # 3 primer names, one of V4EMB, V6, etc
 
-my @lprimerlen = (19, 20, 19, 18);
-my @rprimerlen = (20, 31, 18, 17);
+my @lprimerlen = (19, 20, 19, 18, 16);
+my @rprimerlen = (20, 31, 18, 17, 20);
 
 my  $primer = 1;
 if ( defined $ARGV[3]){
+	$primer = 3 if $ARGV[3] eq "SOSP";
 	$primer = 3 if $ARGV[3] eq "MCHII_SOSP";
 	$primer = 2 if $ARGV[3] eq "V6";
 	$primer = 0 if $ARGV[3] eq "ITS6";
@@ -28,6 +29,7 @@ if ( defined $ARGV[3]){
 my %samples;
 my $bclen = 12; #Golay are 12-mers
 $bclen = 8 if $ARGV[3] eq "MCHII_SOSP";
+$bclen = 8 if $ARGV[3] eq "SOSP";
 
 my $group ="reads";
 
